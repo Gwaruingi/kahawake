@@ -44,9 +44,9 @@ export async function GET(
 
     return NextResponse.json(company);
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error('Error fetching company:', error);
+    console.error('Error fetching company:', errorObj);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch company' 
     },
@@ -167,9 +167,9 @@ export async function PATCH(
       company 
     });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error('Error updating company status:', error);
+    console.error('Error updating company status:', errorObj);
     return NextResponse.json(
       { error: error.message || 'Failed to update company status' 
     },

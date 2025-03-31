@@ -97,9 +97,9 @@ export async function GET(request: Request) {
     
     return NextResponse.json(applications);
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    return handleDbError(error, "Failed to fetch applications");
+    return handleDbError(errorObj, "Failed to fetch applications");
   
     }
 }

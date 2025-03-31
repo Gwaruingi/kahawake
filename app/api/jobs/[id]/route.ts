@@ -68,9 +68,9 @@ export async function GET(
     
     return NextResponse.json(job);
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    return handleDbError(error, "Failed to fetch job details");
+    return handleDbError(errorObj, "Failed to fetch job details");
   
     }
 }
@@ -147,16 +147,16 @@ export async function PATCH(
       job
     });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      return handleValidationError(error, "Job validation failed");
+      return handleValidationError(errorObj, "Job validation failed");
     
     }
     
     // Handle other errors
-    return handleDbError(error, "Failed to update job");
+    return handleDbError(errorObj, "Failed to update job");
   }
 }
 
@@ -220,9 +220,9 @@ export async function DELETE(
       message: "Job deleted successfully"
     });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    return handleDbError(error, "Failed to delete job");
+    return handleDbError(errorObj, "Failed to delete job");
   
     }
 }

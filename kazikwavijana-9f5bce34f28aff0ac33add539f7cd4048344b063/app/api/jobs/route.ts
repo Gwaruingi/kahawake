@@ -75,7 +75,7 @@ export async function GET(request: Request) {
       // Get total count for pagination
       total = await Job.countDocuments(query);
     } catch (dbError) {
-      console.error("Database error in job listing, retrying:", dbError);
+      console.error("Database errorObj in job listing, retrying:", dbError);
       
       // Wait a moment before retry
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -100,9 +100,9 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    return handleDbError(error, "Failed to fetch jobs");
+    return handleDbError(errorObj, "Failed to fetch jobs");
   
     }
 }
@@ -175,15 +175,15 @@ export async function POST(request: Request) {
       job
     }, { status: 201 });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
     // Handle validation errors
     if (error.name === 'ValidationError') {
-      return handleValidationError(error, "Job validation failed");
+      return handleValidationError(errorObj, "Job validation failed");
     
     }
     
     // Handle other errors
-    return handleDbError(error, "Failed to post job");
+    return handleDbError(errorObj, "Failed to post job");
   }
 }

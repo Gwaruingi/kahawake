@@ -58,7 +58,7 @@ export default function JobsList({ companyId }: { companyId: string }) {
     } catch (err) {
       const error = err instanceof Error ? err : new Error('An error occurred');
       
-      setError(error.message);
+      setError(errorObj.message);
       toast({
         title: 'Error',
         message: 'Failed to load jobs. Please try again.',
@@ -107,11 +107,11 @@ export default function JobsList({ companyId }: { companyId: string }) {
         type: "success",
       });
     } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
       toast({
         title: "Error",
-        message: error.message || 'Failed to close job',
+        message: errorObj.message || 'Failed to close job',
         type: "error",
       
     });
@@ -148,11 +148,11 @@ export default function JobsList({ companyId }: { companyId: string }) {
         type: "success",
       });
     } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
       toast({
         title: "Error",
-        message: error.message || 'Failed to delete job',
+        message: errorObj.message || 'Failed to delete job',
         type: "error",
       
     });

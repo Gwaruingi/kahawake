@@ -63,7 +63,7 @@ export const setupMongooseMonitoring = () => {
   });
 
   mongoose.connection.on('error', (err) => {
-    console.error('Mongoose connection error:', err);
+    console.error('Mongoose connection errorObj:', err);
     dbStats.connectionState = 'error';
     dbStats.isHealthy = false;
     addError(`Mongoose: ${err.message}`);
@@ -93,7 +93,7 @@ export const checkMongoDbHealth = async (uri: string): Promise<boolean> => {
     
     return true;
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
     addError(`Health check: ${error.message
     }`);

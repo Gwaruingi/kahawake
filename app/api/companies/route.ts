@@ -50,9 +50,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(company, { status: 201 });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error('Error creating company:', error);
+    console.error('Error creating company:', errorObj);
     return NextResponse.json(
       { error: error.message || 'Failed to create company profile' 
     },
@@ -84,9 +84,9 @@ export async function GET(req: NextRequest) {
     const companies = await Company.find(query);
     return NextResponse.json(companies);
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error('Error fetching companies:', error);
+    console.error('Error fetching companies:', errorObj);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch companies' 
     },

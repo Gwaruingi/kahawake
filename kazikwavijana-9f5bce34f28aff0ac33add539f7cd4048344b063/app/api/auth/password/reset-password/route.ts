@@ -102,9 +102,9 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error("Error resetting password:", error);
+    console.error("Error resetting password:", errorObj);
     return NextResponse.json(
       { error: "Failed to reset password" 
     },

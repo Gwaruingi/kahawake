@@ -59,9 +59,9 @@ export default function CompanyProfileForm() {
       toast.success('Company profile submitted for review');
       router.push('/dashboard');
     } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-      toast.error(error.message);
+      toast.error(errorObj.message);
     
     } finally {
       setLoading(false);

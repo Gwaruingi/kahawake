@@ -51,9 +51,9 @@ export async function GET(request: Request) {
     console.log('Token is valid');
     return NextResponse.json({ valid: true });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error("Error verifying token:", error);
+    console.error("Error verifying token:", errorObj);
     return NextResponse.json(
       { error: "Failed to verify token" 
     },

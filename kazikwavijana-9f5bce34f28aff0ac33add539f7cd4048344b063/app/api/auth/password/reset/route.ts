@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       const error = emailError instanceof Error ? emailError : new Error('An error occurred');
       
       console.error('Failed to send email:', emailError);
-      console.error('Error details:', error.message);
+      console.error('Error details:', errorObj.message);
       
       // We still return success to the client to prevent email enumeration
       // But we log the error for debugging
@@ -97,10 +97,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "If an account exists with this email, you will receive a reset link" });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error("Error requesting password reset:", error);
-    console.error("Error stack:", error.stack);
+    console.error("Error requesting password reset:", errorObj);
+    console.error("Error stack:", errorObj.stack);
     return NextResponse.json(
       { error: "Failed to request password reset" 
     },

@@ -35,13 +35,13 @@ export async function GET() {
       }
     });
   } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-    console.error('Error in DB status API:', error);
+    console.error('Error in DB status API:', errorObj);
     return NextResponse.json(
       { 
         error: 'Failed to get database status',
-        message: error.message 
+        message: errorObj.message 
       
     },
       { status: 500 }
