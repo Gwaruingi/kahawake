@@ -106,11 +106,11 @@ export default function ResetPasswordPage() {
         router.push('/auth/signin');
       }, 2000);
     } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-      console.error('Error resetting password:', error);
-      setError(error.message || 'Failed to reset password');
-      toast.error(error.message || 'Failed to reset password');
+      console.error('Error resetting password:', errorObj);
+      setError(errorObj.message || 'Failed to reset password');
+      toast.error(errorObj.message || 'Failed to reset password');
     
     } finally {
       setLoading(false);

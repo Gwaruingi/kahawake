@@ -124,12 +124,11 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
       router.push('/company/jobs');
       router.refresh();
     } catch (error) {
-      const error = error instanceof Error ? error : new Error('An error occurred');
+      const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
       toast({
         title: "Error",
-        message: error.message || `Failed to ${isEditMode ? 'update' : 'post'
-    } job`,
+        message: errorObj.message || `Failed to ${isEditMode ? 'update' : 'post'} job`,
         type: "error",
       });
     } finally {
