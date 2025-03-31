@@ -34,13 +34,16 @@ export async function GET() {
         timestamp: new Date().toISOString(),
       }
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Error in DB status API:', error);
     return NextResponse.json(
       { 
         error: 'Failed to get database status',
         message: error.message 
-      },
+      
+    },
       { status: 500 }
     );
   }

@@ -101,10 +101,13 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error("Error resetting password:", error);
     return NextResponse.json(
-      { error: "Failed to reset password" },
+      { error: "Failed to reset password" 
+    },
       { status: 500 }
     );
   }

@@ -123,10 +123,13 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
       // Redirect to company jobs page
       router.push('/company/jobs');
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
       toast({
         title: "Error",
-        message: error.message || `Failed to ${isEditMode ? 'update' : 'post'} job`,
+        message: error.message || `Failed to ${isEditMode ? 'update' : 'post'
+    } job`,
         type: "error",
       });
     } finally {

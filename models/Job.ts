@@ -21,12 +21,7 @@ export interface IJob {
   updatedAt: Date;
 }
 
-// Check if the model exists and delete it to update the schema
-// This is only needed during development to update the schema
-if (mongoose.models.Job) {
-  delete mongoose.models.Job;
-}
-
+// Define the schema
 const jobSchema = new mongoose.Schema<IJob>({
   title: { type: String, required: true },
   companyId: { 
@@ -77,4 +72,5 @@ jobSchema.pre('validate', function(next) {
   next();
 });
 
-export const Job = mongoose.model<IJob>('Job', jobSchema);
+// Use a more reliable pattern for model registration
+export const Job = mongoose.models.Job || mongoose.model<IJob>('Job', jobSchema);

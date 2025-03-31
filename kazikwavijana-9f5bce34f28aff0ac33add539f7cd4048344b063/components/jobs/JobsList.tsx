@@ -55,13 +55,16 @@ export default function JobsList({ companyId }: { companyId: string }) {
         limit: 10,
         pages: 0
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+      setError(error.message);
       toast({
         title: 'Error',
         message: 'Failed to load jobs. Please try again.',
         type: 'error'
-      });
+      
+    });
     } finally {
       setLoading(false);
     }
@@ -103,12 +106,15 @@ export default function JobsList({ companyId }: { companyId: string }) {
         message: "Job has been closed successfully",
         type: "success",
       });
-    } catch (error: any) {
+    } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
       toast({
         title: "Error",
         message: error.message || 'Failed to close job',
         type: "error",
-      });
+      
+    });
     }
   };
 
@@ -141,12 +147,15 @@ export default function JobsList({ companyId }: { companyId: string }) {
         message: "Job has been deleted successfully",
         type: "success",
       });
-    } catch (error: any) {
+    } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
       toast({
         title: "Error",
         message: error.message || 'Failed to delete job',
         type: "error",
-      });
+      
+    });
     }
   };
 

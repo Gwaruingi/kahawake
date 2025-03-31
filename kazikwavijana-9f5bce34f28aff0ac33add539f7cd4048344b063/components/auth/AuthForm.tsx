@@ -73,10 +73,13 @@ export default function AuthForm() {
       }
       
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
       console.error('Authentication error:', error);
       setError(error.message);
       toast.error(error.message || 'Authentication failed');
+    
     } finally {
       setIsLoading(false);
     }

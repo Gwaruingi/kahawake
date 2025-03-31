@@ -49,9 +49,12 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
         }
         const data = await response.json();
         setCompany(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
+      } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+        setError(error.message);
+      
+    } finally {
         setLoading(false);
       }
     };
@@ -89,8 +92,11 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
       
       // Show success message
       alert(`Company ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+      setError(error.message);
+    
     } finally {
       setStatusLoading(false);
     }

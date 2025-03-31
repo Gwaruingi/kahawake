@@ -205,9 +205,12 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
       setTimeout(() => {
         router.push('/dashboard?status=success');
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error submitting application:', err);
-      setError(err.message || 'Failed to submit application. Please try again.');
+      setError(error.message || 'Failed to submit application. Please try again.');
+    
     } finally {
       setSubmitting(false);
     }

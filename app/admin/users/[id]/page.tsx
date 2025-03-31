@@ -74,9 +74,12 @@ export default function UserDetailPage({ params }: { params: { id: string } }) {
             // Don't set an error here, as the user data is still valid
           }
         }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
+      } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+        setError(error.message);
+      
+    } finally {
         setLoading(false);
       }
     };

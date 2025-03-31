@@ -43,10 +43,13 @@ export async function GET(
     }
 
     return NextResponse.json(company);
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Error fetching company:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch company' },
+      { error: error.message || 'Failed to fetch company' 
+    },
       { status: 500 }
     );
   }
@@ -163,10 +166,13 @@ export async function PATCH(
       message: `Company status updated to ${status}`,
       company 
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Error updating company status:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to update company status' },
+      { error: error.message || 'Failed to update company status' 
+    },
       { status: 500 }
     );
   }

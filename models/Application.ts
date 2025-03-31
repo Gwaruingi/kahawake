@@ -20,12 +20,6 @@ export interface IApplication extends Document {
   updatedAt: Date;
 }
 
-// Check if the model exists and drop it to update the schema
-// This is only needed during development to update the schema
-if (mongoose.models.Application) {
-  delete mongoose.models.Application;
-}
-
 const applicationSchema = new Schema<IApplication>({
   jobId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -93,4 +87,5 @@ const applicationSchema = new Schema<IApplication>({
 // Create a compound index to prevent duplicate applications
 applicationSchema.index({ jobId: 1, userId: 1 }, { unique: true });
 
-export const Application = mongoose.model<IApplication>('Application', applicationSchema);
+// Use a more reliable pattern for model registration
+export const Application = mongoose.models.Application || mongoose.model<IApplication>('Application', applicationSchema);

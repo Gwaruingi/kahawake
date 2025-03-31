@@ -92,8 +92,11 @@ export const checkMongoDbHealth = async (uri: string): Promise<boolean> => {
     await client.db().command({ ping: 1 });
     
     return true;
-  } catch (error: any) {
-    addError(`Health check: ${error.message}`);
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
+    addError(`Health check: ${error.message
+    }`);
     return false;
   } finally {
     if (client) {

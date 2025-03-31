@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
@@ -25,35 +25,8 @@ export default function NotificationDropdown() {
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch notifications on component mount and when session changes
-  useEffect(() => {
-    if (session?.user) {
-      fetchNotifications();
-      
-      // Set up polling to check for new notifications every minute
-      const intervalId = setInterval(fetchNotifications, 60000);
-      
-      // Clean up interval on unmount
-      return () => clearInterval(intervalId);
-    }
-  }, [session]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Fetch notifications from API
-  const fetchNotifications = async () => {
+  // Fetch notifications from API - using useCallback to memoize the function
+  const fetchNotifications = useCallback(async () => {
     if (!session?.user) return;
     
     try {
@@ -72,7 +45,34 @@ export default function NotificationDropdown() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session]);
+
+  // Fetch notifications on component mount and when session changes
+  useEffect(() => {
+    if (session?.user) {
+      fetchNotifications();
+      
+      // Set up polling to check for new notifications every minute
+      const intervalId = setInterval(fetchNotifications, 60000);
+      
+      // Clean up interval on unmount
+      return () => clearInterval(intervalId);
+    }
+  }, [session, fetchNotifications]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Mark a notification as read
   const markAsRead = async (id: string) => {

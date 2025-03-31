@@ -39,10 +39,12 @@ export async function GET(
     let job;
     try {
       job = await Job.findById(id).lean();
-    } catch (dbError: any) {
+    } catch (dbError) {
+      const error = dbError instanceof Error ? dbError : new Error('An error occurred');
+      
       // If it's a connection error, wait and retry
       if (dbError.name === 'MongoNetworkError' || 
-          dbError.message?.includes('ECONNREFUSED') ||
+          error.message?.includes('ECONNREFUSED') ||
           dbError.name === 'MongoServerSelectionError') {
         
         console.log("Database connection issue, retrying job fetch...");
@@ -50,7 +52,8 @@ export async function GET(
         
         // Second attempt
         job = await Job.findById(id).lean();
-      } else {
+      
+    } else {
         // If it's not a connection error, rethrow
         throw dbError;
       }
@@ -64,9 +67,12 @@ export async function GET(
     }
     
     return NextResponse.json(job);
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     return handleDbError(error, "Failed to fetch job details");
-  }
+  
+    }
 }
 
 export async function PATCH(
@@ -140,10 +146,13 @@ export async function PATCH(
       message: "Job updated successfully",
       job
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     // Handle validation errors
     if (error.name === 'ValidationError') {
       return handleValidationError(error, "Job validation failed");
+    
     }
     
     // Handle other errors
@@ -210,7 +219,10 @@ export async function DELETE(
     return NextResponse.json({
       message: "Job deleted successfully"
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     return handleDbError(error, "Failed to delete job");
-  }
+  
+    }
 }

@@ -68,10 +68,13 @@ export default function JobManagement() {
           
           const data = await response.json();
           setJobs(data);
-        } catch (err: any) {
+        } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
           console.error('Error fetching jobs:', err);
-          setError(err.message || 'Failed to load jobs');
-        } finally {
+          setError(error.message || 'Failed to load jobs');
+        
+    } finally {
           setLoading(false);
         }
       }
@@ -125,9 +128,12 @@ export default function JobManagement() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error updating job status:', err);
-      setError(err.message || 'Failed to update job status');
+      setError(error.message || 'Failed to update job status');
+    
     } finally {
       setActionLoading(null);
     }
@@ -161,9 +167,12 @@ export default function JobManagement() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error deleting job:', err);
-      setError(err.message || 'Failed to delete job');
+      setError(error.message || 'Failed to delete job');
+    
     } finally {
       setActionLoading(null);
     }

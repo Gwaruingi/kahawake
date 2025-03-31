@@ -112,10 +112,13 @@ export async function POST(request: Request) {
         companyName: user.companyName,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: error.message || 'Registration failed' },
+      { error: error.message || 'Registration failed' 
+    },
       { status: 400 }
     );
   }

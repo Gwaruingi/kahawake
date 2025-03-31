@@ -64,9 +64,10 @@ export default function ApplicationMonitoring() {
           
           const data = await response.json();
           setApplications(data);
-        } catch (err: any) {
+        } catch (err) {
           console.error('Error fetching applications:', err);
-          setError(err.message || 'Failed to load applications');
+          const error = err instanceof Error ? err : new Error('Failed to load applications');
+          setError(error.message);
         } finally {
           setLoading(false);
         }
@@ -121,9 +122,10 @@ export default function ApplicationMonitoring() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error updating application status:', err);
-      setError(err.message || 'Failed to update application status');
+      const error = err instanceof Error ? err : new Error('Failed to update application status');
+      setError(error.message);
     } finally {
       setActionLoading(null);
     }
@@ -157,9 +159,10 @@ export default function ApplicationMonitoring() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error deleting application:', err);
-      setError(err.message || 'Failed to delete application');
+      const error = err instanceof Error ? err : new Error('Failed to delete application');
+      setError(error.message);
     } finally {
       setActionLoading(null);
     }

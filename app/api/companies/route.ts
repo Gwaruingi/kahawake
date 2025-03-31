@@ -49,10 +49,13 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(company, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Error creating company:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to create company profile' },
+      { error: error.message || 'Failed to create company profile' 
+    },
       { status: 500 }
     );
   }
@@ -80,10 +83,13 @@ export async function GET(req: NextRequest) {
 
     const companies = await Company.find(query);
     return NextResponse.json(companies);
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error('Error fetching companies:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch companies' },
+      { error: error.message || 'Failed to fetch companies' 
+    },
       { status: 500 }
     );
   }

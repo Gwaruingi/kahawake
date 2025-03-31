@@ -50,10 +50,13 @@ export async function GET(request: Request) {
     
     console.log('Token is valid');
     return NextResponse.json({ valid: true });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error("Error verifying token:", error);
     return NextResponse.json(
-      { error: "Failed to verify token" },
+      { error: "Failed to verify token" 
+    },
       { status: 500 }
     );
   }

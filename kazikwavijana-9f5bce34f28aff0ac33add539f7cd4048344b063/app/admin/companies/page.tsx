@@ -41,9 +41,12 @@ export default function AdminCompaniesPage() {
         }
         const data = await response.json();
         setCompanies(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
+      } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+        setError(error.message);
+      
+    } finally {
         setLoading(false);
       }
     };

@@ -117,9 +117,12 @@ export default function CompanyApplicationsPage() {
       }, []);
       
       setUniqueJobs(jobs);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error fetching applications:', err);
-      setError(err.message || 'Failed to load applications');
+      setError(error.message || 'Failed to load applications');
+    
     } finally {
       setLoading(false);
     }
@@ -177,9 +180,12 @@ export default function CompanyApplicationsPage() {
       setSelectedApplication(null);
       setUpdateStatus('');
       setNotes('');
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error updating application:', err);
-      setError(err.message || 'Failed to update application');
+      setError(error.message || 'Failed to update application');
+    
     } finally {
       setIsUpdating(false);
     }

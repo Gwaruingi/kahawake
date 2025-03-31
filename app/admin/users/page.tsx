@@ -44,10 +44,13 @@ export default function UserManagement() {
           
           const data = await response.json();
           setUsers(data);
-        } catch (err: any) {
+        } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
           console.error('Error fetching users:', err);
-          setError(err.message || 'Failed to load users');
-        } finally {
+          setError(error.message || 'Failed to load users');
+        
+    } finally {
           setLoading(false);
         }
       }
@@ -101,9 +104,12 @@ export default function UserManagement() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error updating user status:', err);
-      setError(err.message || 'Failed to update user status');
+      setError(error.message || 'Failed to update user status');
+    
     } finally {
       setActionLoading(null);
     }
@@ -137,9 +143,12 @@ export default function UserManagement() {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error deleting user:', err);
-      setError(err.message || 'Failed to delete user');
+      setError(error.message || 'Failed to delete user');
+    
     } finally {
       setActionLoading(null);
     }

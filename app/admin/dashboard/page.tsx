@@ -82,9 +82,11 @@ export default function AdminDashboard() {
             ...jobsData,
             ...applicationsData
           });
-        } catch (err: any) {
+        } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
           console.error('Error fetching dashboard stats:', err);
-          setError(err.message || 'Failed to load dashboard statistics');
+          setError(error.message || 'Failed to load dashboard statistics');
           
           // Set mock data for development
           setStats({
@@ -99,7 +101,8 @@ export default function AdminDashboard() {
             pendingApplications: 100,
             acceptedApplications: 50,
             rejectedApplications: 50,
-          });
+          
+    });
         } finally {
           setLoading(false);
         }

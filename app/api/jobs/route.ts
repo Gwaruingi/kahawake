@@ -99,9 +99,12 @@ export async function GET(request: Request) {
         pages: Math.ceil(total / limit)
       }
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     return handleDbError(error, "Failed to fetch jobs");
-  }
+  
+    }
 }
 
 export async function POST(request: Request) {
@@ -147,10 +150,12 @@ export async function POST(request: Request) {
     try {
       // First attempt
       job = await Job.create(jobData);
-    } catch (dbError: any) {
+    } catch (dbError) {
+      const error = dbError instanceof Error ? dbError : new Error('An error occurred');
+      
       // If it's a connection error, wait and retry
       if (dbError.name === 'MongoNetworkError' || 
-          dbError.message?.includes('ECONNREFUSED') ||
+          error.message?.includes('ECONNREFUSED') ||
           dbError.name === 'MongoServerSelectionError') {
         
         console.log("Database connection issue, retrying job creation...");
@@ -158,7 +163,8 @@ export async function POST(request: Request) {
         
         // Second attempt
         job = await Job.create(jobData);
-      } else {
+      
+    } else {
         // If it's not a connection error, rethrow
         throw dbError;
       }
@@ -168,10 +174,13 @@ export async function POST(request: Request) {
       message: "Job posted successfully",
       job
     }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     // Handle validation errors
     if (error.name === 'ValidationError') {
       return handleValidationError(error, "Job validation failed");
+    
     }
     
     // Handle other errors

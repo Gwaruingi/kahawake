@@ -115,9 +115,12 @@ export async function GET(
     }
     
     return NextResponse.json(application);
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     return handleDbError(error, "Failed to fetch application details");
-  }
+  
+    }
 }
 
 // PATCH handler to update an application
@@ -341,10 +344,13 @@ export async function PATCH(
       message: "Application updated successfully",
       application
     });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     // Handle validation errors
     if (error.name === 'ValidationError') {
       return handleValidationError(error, "Application validation failed");
+    
     }
     
     // Handle other errors

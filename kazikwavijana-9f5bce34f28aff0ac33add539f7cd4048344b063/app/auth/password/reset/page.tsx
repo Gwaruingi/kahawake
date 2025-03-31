@@ -45,9 +45,12 @@ export default function PasswordResetRequest() {
       setSuccess(true);
       toast.success('Password reset link sent to your email');
       router.push('/auth/signin');
-    } catch (err: any) {
-      setError(err.message);
-      toast.error(err.message);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+      setError(error.message);
+      toast.error(error.message);
+    
     } finally {
       setLoading(false);
     }

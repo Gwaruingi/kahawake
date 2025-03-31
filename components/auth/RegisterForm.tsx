@@ -73,8 +73,11 @@ export default function RegisterForm() {
       } else {
         router.push('/auth/signin');
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+      setError(error.message);
+    
     } finally {
       setIsLoading(false);
     }

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { CheckCircleIcon, XCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/solid';
@@ -37,9 +39,12 @@ const DbStatusPanel: React.FC = () => {
       
       const data = await response.json();
       setDbStatus(data.data);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error fetching database status:', err);
-      setError(err.message || 'Failed to fetch database status');
+      setError(error.message || 'Failed to fetch database status');
+    
     } finally {
       setLoading(false);
     }

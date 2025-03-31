@@ -117,9 +117,12 @@ export default function CompanyDashboard() {
             console.error('Error fetching jobs:', jobError);
           }
         }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
+      } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
+        setError(error.message);
+      
+    } finally {
         setLoading(false);
       }
     };

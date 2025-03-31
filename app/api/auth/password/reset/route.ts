@@ -84,20 +84,26 @@ export async function POST(request: Request) {
       });
       
       console.log('Email sent successfully:', emailResponse);
-    } catch (emailError: any) {
+    } catch (emailError) {
+      const error = emailError instanceof Error ? emailError : new Error('An error occurred');
+      
       console.error('Failed to send email:', emailError);
-      console.error('Error details:', emailError.message);
+      console.error('Error details:', error.message);
       
       // We still return success to the client to prevent email enumeration
       // But we log the error for debugging
+    
     }
 
     return NextResponse.json({ message: "If an account exists with this email, you will receive a reset link" });
-  } catch (error: any) {
+  } catch (error) {
+      const error = error instanceof Error ? error : new Error('An error occurred');
+      
     console.error("Error requesting password reset:", error);
     console.error("Error stack:", error.stack);
     return NextResponse.json(
-      { error: "Failed to request password reset" },
+      { error: "Failed to request password reset" 
+    },
       { status: 500 }
     );
   }

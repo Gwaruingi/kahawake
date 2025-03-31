@@ -36,7 +36,6 @@ export default function JobEdit({ params }: { params: { id: string } }) {
   const router = useRouter();
   const jobId = params.id;
   
-  const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +75,6 @@ export default function JobEdit({ params }: { params: { id: string } }) {
           }
           
           const data = await response.json();
-          setJob(data);
           
           // Initialize form data
           setFormData({
@@ -93,10 +91,13 @@ export default function JobEdit({ params }: { params: { id: string } }) {
             type: data.type || 'full-time',
             status: data.status || 'pending'
           });
-        } catch (err: any) {
+        } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
           console.error('Error fetching job details:', err);
-          setError(err.message || 'Failed to load job details');
-        } finally {
+          setError(error.message || 'Failed to load job details');
+        
+    } finally {
           setLoading(false);
         }
       }
@@ -187,9 +188,12 @@ export default function JobEdit({ params }: { params: { id: string } }) {
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('An error occurred');
+      
       console.error('Error updating job:', err);
-      setError(err.message || 'Failed to update job');
+      setError(error.message || 'Failed to update job');
+    
     } finally {
       setSaving(false);
     }
