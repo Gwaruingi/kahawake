@@ -28,17 +28,39 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
   await dbConnect();
   
   // Check if the company has an approved profile
-  const company = await Company.findOne({ 
+  const companyDoc = await Company.findOne({ 
     userId: session.user.id,
     status: 'approved'
   }).lean();
+  
+  // Type assertion to ensure TypeScript recognizes the company properties
+  const company = companyDoc ? (companyDoc as unknown) as { 
+    _id: { toString(): string }; 
+    name: string; 
+    userId?: string;
+    status: string;
+  } : null;
   
   if (!company) {
     return redirect('/company/profile');
   }
   
   // Get the job to edit
-  const job = await Job.findById(resolvedParams.id).lean();
+  const jobDoc = await Job.findById(resolvedParams.id).lean();
+  
+  // Type assertion to ensure TypeScript recognizes the job properties
+  const job = jobDoc ? (jobDoc as unknown) as { 
+    _id: { toString(): string }; 
+    companyId: { toString(): string };
+    title: string;
+    description: string;
+    requirements: string[];
+    responsibilities: string[];
+    location: string;
+    salary: string;
+    jobType: string;
+    status: string;
+  } : null;
   
   // If job doesn't exist or doesn't belong to this company, redirect
   if (!job || job.companyId.toString() !== company._id.toString()) {
