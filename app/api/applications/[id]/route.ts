@@ -53,7 +53,7 @@ export async function GET(
     }
     
     // Fetch the application with job details
-    const application = await Application.findById(id)
+    const applicationDoc = await Application.findById(id)
       .populate({
         path: 'jobId',
         model: Job,
@@ -61,17 +61,36 @@ export async function GET(
       })
       .lean();
     
-    if (!application) {
+    if (!applicationDoc) {
       return handleNotFoundError(
         new Error(`Application with ID ${id} not found`),
         "Application not found"
       );
     }
     
+    // First cast to unknown to avoid type errors
+    const application = applicationDoc as unknown;
+    
+    // Then cast to the expected type
+    const typedApplication = application as {
+      userId: { toString(): string };
+      jobId: { 
+        companyId: string | mongoose.Types.ObjectId;
+        _id: string;
+        title: string;
+        companyName: string;
+        status: string;
+      };
+      status: string;
+      notificationRead: boolean;
+      _id: string;
+      [key: string]: any;
+    };
+    
     // Check if the user is authorized to view this application
     if (session.user.role === 'jobseeker') {
       // Job seekers can only view their own applications
-      if (application.userId.toString() !== session.user.id) {
+      if (typedApplication.userId.toString() !== session.user.id) {
         return handlePermissionError(
           new Error("Not authorized to view this application"),
           "You can only view your own applications"
@@ -79,7 +98,7 @@ export async function GET(
       }
       
       // If this is a job seeker viewing their own application, mark notification as read
-      if (!application.notificationRead) {
+      if (!typedApplication.notificationRead) {
         await Application.findByIdAndUpdate(id, { notificationRead: true });
       }
     } else if (session.user.role === 'company') {
@@ -98,7 +117,7 @@ export async function GET(
       }
       
       // Check if the job belongs to this company
-      if (application.jobId.companyId.toString() !== company._id.toString()) {
+      if (typedApplication.jobId.companyId.toString() !== company._id.toString()) {
         return handlePermissionError(
           new Error("Not authorized to view this application"),
           "You can only view applications for your company's jobs"
@@ -114,7 +133,7 @@ export async function GET(
       }
     }
     
-    return NextResponse.json(application);
+    return NextResponse.json(typedApplication);
   } catch (error) {
       const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
@@ -165,19 +184,46 @@ export async function PATCH(
     }
     
     // Fetch the application with job details
-    const application = await Application.findById(id)
+    const applicationDoc = await Application.findById(id)
       .populate({
         path: 'jobId',
         model: Job,
         select: 'title companyName companyId location jobType status'
       });
     
-    if (!application) {
+    if (!applicationDoc) {
       return handleNotFoundError(
         new Error(`Application with ID ${id} not found`),
         "Application not found"
       );
     }
+    
+    // First cast to unknown to avoid type errors
+    const application = applicationDoc as unknown;
+    
+    // Then cast to the expected type
+    const typedApplication = application as {
+      userId: { toString(): string };
+      jobId: { 
+        companyId: string | mongoose.Types.ObjectId;
+        _id: string;
+        title: string;
+        companyName: string;
+        status: string;
+      };
+      status: string;
+      statusHistory?: Array<{
+        status: string;
+        date: Date;
+        notes?: string;
+      }>;
+      notificationRead: boolean;
+      email: string;
+      name: string;
+      _id: string;
+      save: () => Promise<any>;
+      [key: string]: any;
+    };
     
     // Check authorization based on user role
     if (session.user.role === 'company') {
@@ -196,7 +242,7 @@ export async function PATCH(
       }
       
       // Check if the job belongs to this company
-      if (application.jobId.companyId.toString() !== company._id.toString()) {
+      if (typedApplication.jobId.companyId.toString() !== company._id.toString()) {
         return handlePermissionError(
           new Error("Not authorized to update this application"),
           "You can only update applications for your company's jobs"
@@ -214,7 +260,7 @@ export async function PATCH(
       });
       
       // If status is being updated, add to status history
-      if (updateData.status && updateData.status !== application.status) {
+      if (updateData.status && updateData.status !== typedApplication.status) {
         // Create a status history entry
         const historyEntry = {
           status: updateData.status,
@@ -223,15 +269,15 @@ export async function PATCH(
         };
         
         // Initialize status history array if it doesn't exist
-        if (!application.statusHistory) {
-          application.statusHistory = [];
+        if (!typedApplication.statusHistory) {
+          typedApplication.statusHistory = [];
         }
         
         // Add the new status to history
-        application.statusHistory.push(historyEntry);
+        typedApplication.statusHistory.push(historyEntry);
         
         // Set notification flag for user
-        application.notificationRead = false;
+        typedApplication.notificationRead = false;
         
         // Create an internal notification for the user
         const statusMessages = {
@@ -246,23 +292,23 @@ export async function PATCH(
                            `Your application status has been updated to ${updateData.status}`;
         
         await Notification.create({
-          userId: application.userId,
+          userId: typedApplication.userId.toString(),
           type: 'application_status',
           title: `Application Status Update: ${statusTitle}`,
-          message: `Your application for ${application.jobId.title} at ${application.jobId.companyName} has been updated to "${updateData.status}".`,
+          message: `Your application for ${typedApplication.jobId.title} at ${typedApplication.jobId.companyName} has been updated to "${updateData.status}".`,
           read: false,
-          relatedId: application._id
+          relatedId: typedApplication._id.toString()
         });
       }
       
       // Update the application
-      Object.assign(application, updateFields);
+      Object.assign(typedApplication, updateFields);
       
       // Save the updated application
-      await application.save();
+      await typedApplication.save();
       
       // Send email notification to the applicant if status changed
-      if (updateData.status && updateData.status !== application.status && process.env.RESEND_API_KEY) {
+      if (updateData.status && updateData.status !== typedApplication.status && process.env.RESEND_API_KEY) {
         try {
           const statusMessages = {
             reviewed: "Your application has been reviewed",
@@ -277,12 +323,12 @@ export async function PATCH(
           
           await resend.emails.send({
             from: 'Job Portal <notifications@jobportal.com>',
-            to: application.email,
-            subject: `Application Update: ${statusTitle} for ${application.jobId.title}`,
+            to: typedApplication.email,
+            subject: `Application Update: ${statusTitle} for ${typedApplication.jobId.title}`,
             html: `
               <h1>Application Status Update</h1>
-              <p>Dear ${application.name},</p>
-              <p>${statusTitle} for the <strong>${application.jobId.title}</strong> position at <strong>${application.jobId.companyName}</strong>.</p>
+              <p>Dear ${typedApplication.name},</p>
+              <p>${statusTitle} for the <strong>${typedApplication.jobId.title}</strong> position at <strong>${typedApplication.jobId.companyName}</strong>.</p>
               ${updateData.status === 'hired' ? 
                 `<p>The employer will contact you soon with next steps.</p>` : 
                 `<p>You can check your application status in your dashboard.</p>`
@@ -302,7 +348,7 @@ export async function PATCH(
       }
     } else if (session.user.role === 'jobseeker') {
       // Job seekers can only update their own applications
-      if (application.userId.toString() !== session.user.id) {
+      if (typedApplication.userId.toString() !== session.user.id) {
         return handlePermissionError(
           new Error("Not authorized to update this application"),
           "You can only update your own applications"
@@ -320,10 +366,10 @@ export async function PATCH(
       });
       
       // Update the application
-      Object.assign(application, updateFields);
+      Object.assign(typedApplication, updateFields);
       
       // Save the updated application
-      await application.save();
+      await typedApplication.save();
     } else {
       // Admin users can update all applications
       if (session.user.role !== 'admin') {
@@ -334,15 +380,15 @@ export async function PATCH(
       }
       
       // Update the application with all provided fields
-      Object.assign(application, updateData);
+      Object.assign(typedApplication, updateData);
       
       // Save the updated application
-      await application.save();
+      await typedApplication.save();
     }
     
     return NextResponse.json({
       message: "Application updated successfully",
-      application
+      application: typedApplication
     });
   } catch (error) {
       const errorObj = error instanceof Error ? error : new Error('An error occurred');
