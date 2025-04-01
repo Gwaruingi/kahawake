@@ -170,7 +170,7 @@ export async function PATCH(
       const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
     // Handle validation errors
-    if (error.name === 'ValidationError') {
+    if (errorObj.name === 'ValidationError') {
       return handleValidationError(errorObj, "Job validation failed");
     
     }
