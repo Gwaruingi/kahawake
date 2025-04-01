@@ -140,12 +140,11 @@ export async function GET(
     }
     
     return NextResponse.json(typedApplication);
-  } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error('An error occurred');
-      
+  } catch (error: unknown) {
+    const errorObj = error instanceof Error ? error : new Error('An error occurred');
+    
     return handleDbError(errorObj, "Failed to fetch application details");
-  
-    }
+  }
 }
 
 // PATCH handler to update an application
@@ -402,13 +401,12 @@ export async function PATCH(
       message: "Application updated successfully",
       application: typedApplication
     });
-  } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error('An error occurred');
-      
-    // Handle validation errors
-    if (error.name === 'ValidationError') {
-      return handleValidationError(errorObj, "Application validation failed");
+  } catch (error: unknown) {
+    const errorObj = error instanceof Error ? error : new Error('An error occurred');
     
+    // Handle validation errors
+    if (error instanceof Error && 'name' in error && error.name === 'ValidationError') {
+      return handleValidationError(errorObj, "Application validation failed");
     }
     
     // Handle other errors
