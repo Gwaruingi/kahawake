@@ -69,7 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials: { email: string; password: string }) {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error('Please enter your email and password');
@@ -87,10 +87,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.log('Stored password hash:', user.password);
           
           // Debug password comparison
-          const plainPassword = credentials.password as string;
+          const plainPassword = credentials.password;
           console.log('Attempting to verify password');
           
-          const isValid = await bcrypt.compare(plainPassword, user.password as string);
+          const isValid = await bcrypt.compare(plainPassword, user.password);
           console.log('Password verification result:', isValid);
           
           if (!isValid) {
