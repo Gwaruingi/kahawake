@@ -87,10 +87,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.log('Stored password hash:', user.password);
           
           // Debug password comparison
-          const plainPassword = credentials.password;
+          const plainPassword = credentials.password || '';
           console.log('Attempting to verify password');
           
-          const isValid = await bcrypt.compare(plainPassword, user.password);
+          const isValid = await bcrypt.compare(plainPassword, user.password || '');
           console.log('Password verification result:', isValid);
           
           if (!isValid) {
