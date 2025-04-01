@@ -7,6 +7,7 @@ import clientPromise from "@/lib/mongodb";
 import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
+import { Adapter } from "next-auth/adapters";
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
@@ -48,34 +49,11 @@ const testConnection = async () => {
 // Initialize connection test - but don't block startup if it fails
 testConnection().catch(() => console.log("Connection test failed but continuing startup"));
 
-// Create a custom adapter that extends the MongoDB adapter to handle the role field
-const createCustomAdapter = (client: Promise<MongoClient>) => {
-  const adapter = MongoDBAdapter(client);
-  
-  // Create a wrapper for the adapter that adds the role field
-  return {
-    ...adapter,
-    createUser: async (userData: any) => {
-      // Set default role to 'jobseeker' if not provided
-      const userWithRole = {
-        ...userData,
-        role: userData.role || 'jobseeker'
-      };
-      
-      // Call the original createUser function with the modified user data
-      if (adapter.createUser) {
-        const user = await adapter.createUser(userWithRole);
-        return user;
-      }
-      
-      // Fallback in case createUser is undefined
-      throw new Error('Adapter createUser function is undefined');
-    }
-  };
-};
+// Use the MongoDB adapter directly with a type assertion to satisfy TypeScript
+const adapter = MongoDBAdapter(clientPromise) as Adapter;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: createCustomAdapter(clientPromise),
+  adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
