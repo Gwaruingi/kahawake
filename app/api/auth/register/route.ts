@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       
     console.error('Registration error:', errorObj);
     return NextResponse.json(
-      { error: error.message || 'Registration failed' 
+      { error: errorObj.message || 'Registration failed' 
     },
       { status: 400 }
     );
