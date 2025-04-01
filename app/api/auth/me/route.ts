@@ -19,14 +19,24 @@ export async function GET() {
     await connectToDB();
     
     // Get the user from the database to ensure we have the most up-to-date information
-    const user = await User.findOne({ email: session.user.email }).select("-password").lean();
+    const userDoc = await User.findOne({ email: session.user.email }).select("-password").lean();
     
-    if (!user) {
+    if (!userDoc) {
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
       );
     }
+    
+    // Type assertion after null check
+    const user = userDoc as unknown as {
+      _id: { toString(): string };
+      name: string;
+      email: string;
+      role: 'admin' | 'company' | 'jobseeker';
+      companyName?: string;
+      [key: string]: any;
+    };
     
     // Return the user data
     return NextResponse.json({
