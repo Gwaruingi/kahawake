@@ -107,7 +107,8 @@ export async function PATCH(
     }
     
     // Type assertion to ensure TypeScript recognizes the company properties
-    const typedCompany = company as { 
+    // First convert to unknown, then to the specific type
+    const typedCompany = (company as unknown) as { 
       _id: string; 
       name: string; 
       userId?: string;
