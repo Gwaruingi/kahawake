@@ -58,11 +58,9 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
         const data = await response.json();
         setCompany(data);
       } catch (err) {
-      const error = err instanceof Error ? err : new Error('An error occurred');
-      
+        const error = err instanceof Error ? err : new Error('An error occurred');
         setError(error.message);
-      
-    } finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -73,13 +71,10 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
   const updateCompanyStatus = async (status: 'approved' | 'rejected') => {
     try {
       setStatusLoading(true);
-      
       const payload: { status: string; rejectionReason?: string } = { status };
-      
       if (status === 'rejected' && rejectionReason) {
         payload.rejectionReason = rejectionReason;
       }
-      
       const response = await fetch(`/api/companies/${params.id}`, {
         method: 'PATCH',
         headers: {
@@ -97,14 +92,10 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
       setCompany(data.company);
       setShowRejectionForm(false);
       setRejectionReason('');
-      
-      // Show success message
       alert(`Company ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('An error occurred');
-      
       setError(error.message);
-    
     } finally {
       setStatusLoading(false);
     }
