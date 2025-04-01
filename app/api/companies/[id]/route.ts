@@ -48,7 +48,7 @@ export async function GET(
       
     console.error('Error fetching company:', errorObj);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch company' 
+      { error: errorObj.message || 'Failed to fetch company' 
     },
       { status: 500 }
     );
@@ -171,7 +171,7 @@ export async function PATCH(
       
     console.error('Error updating company status:', errorObj);
     return NextResponse.json(
-      { error: error.message || 'Failed to update company status' 
+      { error: errorObj.message || 'Failed to update company status' 
     },
       { status: 500 }
     );
