@@ -38,10 +38,11 @@ interface Profile {
   experience: any[];
 }
 
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type JobApplicationPageProps = {
-  params: {
+  params: Promise<{
     jobId: string;
-  };
+  }>;
 }
 
 export default function JobApplicationPage({ params }: JobApplicationPageProps) {
@@ -56,11 +57,30 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [cvRequired, setCvRequired] = useState(false);
+  const [resolvedJobId, setResolvedJobId] = useState<string | null>(null);
+
+  // Resolve params if it's a Promise
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setResolvedJobId(resolvedParams.jobId);
+      } catch (err) {
+        setError('Failed to resolve route parameters');
+        setLoading(false);
+      }
+    };
+    
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
+    // Don't proceed if jobId is not resolved yet
+    if (!resolvedJobId) return;
+    
     // Redirect if not authenticated
     if (status === 'unauthenticated') {
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/apply/${params.jobId}`)}`);
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/apply/${resolvedJobId}`)}`);
       return;
     }
 
@@ -71,7 +91,7 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
           setLoading(true);
           
           // Fetch job details
-          const jobResponse = await fetch(`/api/jobs/${params.jobId}`);
+          const jobResponse = await fetch(`/api/jobs/${resolvedJobId}`);
           if (!jobResponse.ok) {
             throw new Error('Failed to fetch job details');
           }
@@ -79,7 +99,7 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
           
           // Check if job is active
           if (jobData.status !== 'active') {
-            router.push(`/jobs/${params.jobId}?error=closed`);
+            router.push(`/jobs/${resolvedJobId}?error=closed`);
             return;
           }
           
@@ -87,7 +107,7 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
           const deadline = new Date(jobData.applicationDeadline);
           const today = new Date();
           if (deadline < today) {
-            router.push(`/jobs/${params.jobId}?error=deadline`);
+            router.push(`/jobs/${resolvedJobId}?error=deadline`);
             return;
           }
           
@@ -103,12 +123,12 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
               setCvRequired(!profileData.profile.resume);
             } else {
               // No profile found - redirect to profile page
-              router.push(`/profile?redirect=${encodeURIComponent(`/apply/${params.jobId}`)}`);
+              router.push(`/profile?redirect=${encodeURIComponent(`/apply/${resolvedJobId}`)}`);
               return;
             }
           } else {
             // Error fetching profile - redirect to profile page
-            router.push(`/profile?redirect=${encodeURIComponent(`/apply/${params.jobId}`)}`);
+            router.push(`/profile?redirect=${encodeURIComponent(`/apply/${resolvedJobId}`)}`);
             return;
           }
         } catch (err) {
@@ -121,7 +141,7 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
       
       fetchData();
     }
-  }, [status, params.jobId, router]);
+  }, [status, resolvedJobId, router]);
 
   const handleCvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
