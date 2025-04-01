@@ -119,7 +119,14 @@ export async function PATCH(
     let user = null;
     try {
       if (typedCompany.userId) {
-        user = await User.findById(typedCompany.userId).lean();
+        const userDoc = await User.findById(typedCompany.userId).lean();
+        // Type assertion for user object
+        user = (userDoc as unknown) as { 
+          _id: string;
+          email?: string;
+          name?: string;
+          role: 'admin' | 'company' | 'jobseeker';
+        } | null;
       }
     } catch (userError) {
       console.error('Error finding user:', userError);
