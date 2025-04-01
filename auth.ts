@@ -124,7 +124,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         // Convert MongoDB ObjectId to string
-        token.id = user._id.toString();
+        token.id = (user as any)._id.toString();
       }
       return token;
     },
