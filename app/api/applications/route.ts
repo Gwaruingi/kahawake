@@ -86,14 +86,21 @@ export async function POST(request: Request) {
     }
     
     // Check if job exists and is active
-    const job = await Job.findById(data.jobId).lean();
+    const jobDoc = await Job.findById(data.jobId).lean();
     
-    if (!job) {
+    if (!jobDoc) {
       return NextResponse.json(
         { error: "Job not found" },
         { status: 404 }
       );
     }
+    
+    // Type assertion after null check
+    const job = jobDoc as unknown as {
+      status: string;
+      _id: { toString(): string };
+      [key: string]: any;
+    };
     
     if (job.status !== 'active') {
       return NextResponse.json(
@@ -166,10 +173,10 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from: 'Job Portal <notifications@jobportal.com>',
           to: profile.email,
-          subject: `Application Submitted: ${job.title} at ${job.company}`,
+          subject: `Application Submitted: ${job.title as string} at ${job.company as string}`,
           html: `
             <h1>Application Submitted</h1>
-            <p>Thank you for applying to the ${job.title} position at ${job.company}.</p>
+            <p>Thank you for applying to the ${job.title as string} position at ${job.company as string}.</p>
             <p>Your application has been received and is currently under review.</p>
             <p>You can track the status of your application in your dashboard.</p>
           `
