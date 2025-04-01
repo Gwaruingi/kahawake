@@ -25,10 +25,9 @@ interface Company {
   updatedAt: string;
 }
 
+// In Next.js 15, params can be a Promise for dynamic routes
 type CompanyDetailPageProps = {
-  params: {
-    id: string;
-  };
+  params: { id: string } | Promise<{ id: string }>;
 }
 
 export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
@@ -40,9 +39,25 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
   const [statusLoading, setStatusLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectionForm, setShowRejectionForm] = useState(false);
+  const [resolvedId, setResolvedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (sessionStatus === 'loading') return;
+    // Resolve params if it's a Promise
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = params instanceof Promise ? await params : params;
+        setResolvedId(resolvedParams.id);
+      } catch (err) {
+        setError('Failed to resolve route parameters');
+        setLoading(false);
+      }
+    };
+    
+    resolveParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (sessionStatus === 'loading' || !resolvedId) return;
 
     if (!session || session.user.role !== 'admin') {
       router.push('/auth/signin');
@@ -51,7 +66,7 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
 
     const fetchCompany = async () => {
       try {
-        const response = await fetch(`/api/companies/${params.id}`);
+        const response = await fetch(`/api/companies/${resolvedId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch company details');
         }
@@ -66,16 +81,18 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
     };
 
     fetchCompany();
-  }, [session, sessionStatus, router, params.id]);
+  }, [session, sessionStatus, router, resolvedId]);
 
   const updateCompanyStatus = async (status: 'approved' | 'rejected') => {
+    if (!resolvedId) return;
+    
     try {
       setStatusLoading(true);
       const payload: { status: string; rejectionReason?: string } = { status };
       if (status === 'rejected' && rejectionReason) {
         payload.rejectionReason = rejectionReason;
       }
-      const response = await fetch(`/api/companies/${params.id}`, {
+      const response = await fetch(`/api/companies/${resolvedId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
