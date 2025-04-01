@@ -104,17 +104,23 @@ export async function GET(
     } else if (session.user.role === 'company') {
       // Companies can only view applications for their jobs
       // Find the company profile
-      const company = await Company.findOne({ 
+      const companyDoc = await Company.findOne({ 
         userId: session.user.id,
         status: 'approved'
       }).lean();
       
-      if (!company) {
+      if (!companyDoc) {
         return handlePermissionError(
           new Error("No approved company profile"),
           "You need an approved company profile to view applications"
         );
       }
+      
+      // Type assertion after null check
+      const company = companyDoc as unknown as {
+        _id: { toString(): string };
+        [key: string]: any;
+      };
       
       // Check if the job belongs to this company
       if (typedApplication.jobId.companyId.toString() !== company._id.toString()) {
@@ -229,17 +235,23 @@ export async function PATCH(
     if (session.user.role === 'company') {
       // Companies can only update applications for their jobs
       // Find the company profile
-      const company = await Company.findOne({ 
+      const companyDoc = await Company.findOne({ 
         userId: session.user.id,
         status: 'approved'
       }).lean();
       
-      if (!company) {
+      if (!companyDoc) {
         return handlePermissionError(
           new Error("No approved company profile"),
           "You need an approved company profile to update applications"
         );
       }
+      
+      // Type assertion after null check
+      const company = companyDoc as unknown as {
+        _id: { toString(): string };
+        [key: string]: any;
+      };
       
       // Check if the job belongs to this company
       if (typedApplication.jobId.companyId.toString() !== company._id.toString()) {
