@@ -26,6 +26,14 @@ export async function GET(request: Request) {
     // Ensure database connection
     await ensureDbConnected();
     
+    // Make sure Company model is registered
+    try {
+      mongoose.model('Company');
+    } catch (e) {
+      // If not registered, register it explicitly
+      mongoose.model('Company', new mongoose.Schema({}));
+    }
+    
     // Get query parameters
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
@@ -42,7 +50,7 @@ export async function GET(request: Request) {
       .populate({
         path: 'companyId',
         select: 'name email userId',
-        model: 'Company'
+        model: Company
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -70,6 +78,14 @@ export async function POST(request: Request) {
     
     // Ensure database connection
     await ensureDbConnected();
+    
+    // Make sure Company model is registered
+    try {
+      mongoose.model('Company');
+    } catch (e) {
+      // If not registered, register it explicitly
+      mongoose.model('Company', new mongoose.Schema({}));
+    }
     
     // Parse request body
     const data = await request.json();
