@@ -36,24 +36,40 @@ export async function GET(request: Request) {
     const jobId = url.searchParams.get('jobId');
     
     // Find the company profile for the current user
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to view applications."
       );
     }
     
-    // Find all jobs posted by this company
-    const companyJobs = await Job.find({ companyId: company._id }).lean();
+    // Type assertion to ensure TypeScript recognizes the company properties
+    const company = (companyDoc as unknown) as { 
+      _id: string; 
+      name: string; 
+      userId?: string;
+      status: string;
+    };
     
-    if (companyJobs.length === 0) {
+    // Find all jobs posted by this company
+    const companyJobsDoc = await Job.find({ companyId: company._id }).lean();
+    
+    if (companyJobsDoc.length === 0) {
       return NextResponse.json([]);
     }
+    
+    // Type assertion for job objects
+    const companyJobs = (companyJobsDoc as unknown) as Array<{
+      _id: string;
+      title: string;
+      companyId: string;
+      status: string;
+    }>;
     
     // Get all job IDs
     const jobIds = companyJobs.map(job => job._id);
