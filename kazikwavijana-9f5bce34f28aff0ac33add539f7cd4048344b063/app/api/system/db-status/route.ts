@@ -20,7 +20,7 @@ export async function GET() {
     const dbStatus = dbMonitor.getDbStatus();
     
     // Check current health if MongoDB URI is available
-    let currentHealth = false;
+    const currentHealth = false;
     if (process.env.MONGODB_URI) {
       currentHealth = await checkMongoDbHealth(process.env.MONGODB_URI);
     }

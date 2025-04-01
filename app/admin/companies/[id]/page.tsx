@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -23,7 +25,13 @@ interface Company {
   updatedAt: string;
 }
 
-export default function CompanyDetailPage({ params }: { params: { id: string } }) {
+type CompanyDetailPageProps = {
+  params: {
+    id: string;
+  };
+}
+
+export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const [company, setCompany] = useState<Company | null>(null);

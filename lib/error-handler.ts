@@ -28,9 +28,9 @@ export function handleApiError(
   console.error(`API Error (${type}):`, error);
   
   // Default error message
-  let message = customMessage || 'An unexpected error occurred';
-  let status = 500;
-  let code = 'server_error';
+  const message = customMessage || 'An unexpected error occurred';
+  const status = 500;
+  const code = 'server_error';
   
   // Handle different error types
   switch (type) {

@@ -35,7 +35,13 @@ interface Job {
   createdAt: string;
 }
 
-export default function JobDetailPage({ params }: { params: { id: string } }) {
+type JobDetailPageProps = {
+  params: {
+    id: string;
+  };
+}
+
+export default function JobDetailPage({ params }: JobDetailPageProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);

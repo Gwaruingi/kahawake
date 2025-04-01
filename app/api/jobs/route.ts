@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
     
     // Build query
-    let query: any = {};
+    const query: any = {};
     
     // If user is a company, they should only see their own jobs
     if (session?.user?.role === 'company') {

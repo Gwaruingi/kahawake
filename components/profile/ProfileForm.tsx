@@ -165,7 +165,7 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
 
     try {
       // Upload profile picture if changed
-      let profilePicturePath = profilePicture;
+      const profilePicturePath = profilePicture;
       if (profilePictureFile) {
         const formData = new FormData();
         formData.append('file', profilePictureFile);
@@ -183,7 +183,7 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
       }
 
       // Upload resume if changed
-      let resumePath = resume;
+      const resumePath = resume;
       if (resumeFile) {
         const formData = new FormData();
         formData.append('file', resumeFile);

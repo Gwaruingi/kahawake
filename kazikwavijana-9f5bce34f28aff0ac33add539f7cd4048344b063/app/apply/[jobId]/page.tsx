@@ -154,7 +154,7 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
     
     try {
       // Upload CV if provided
-      let cvUrl = null;
+      const cvUrl = null;
       if (cvFile) {
         const formData = new FormData();
         formData.append('file', cvFile);

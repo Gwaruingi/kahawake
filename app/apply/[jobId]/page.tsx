@@ -38,7 +38,13 @@ interface Profile {
   experience: any[];
 }
 
-export default function JobApplicationPage({ params }: { params: { jobId: string } }) {
+type JobApplicationPageProps = {
+  params: {
+    jobId: string;
+  };
+}
+
+export default function JobApplicationPage({ params }: JobApplicationPageProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
@@ -154,7 +160,7 @@ export default function JobApplicationPage({ params }: { params: { jobId: string
     
     try {
       // Upload CV if provided
-      let cvUrl = null;
+      const cvUrl = null;
       if (cvFile) {
         const formData = new FormData();
         formData.append('file', cvFile);

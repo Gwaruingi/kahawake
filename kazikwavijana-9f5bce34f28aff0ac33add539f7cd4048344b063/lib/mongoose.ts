@@ -16,7 +16,7 @@ const LOCAL_MONGODB_URI = process.env.LOCAL_MONGODB_URI || 'mongodb://localhost:
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global as any;
+const cached = global as any;
 
 if (!cached.mongoose) {
   cached.mongoose = { conn: null, promise: null };

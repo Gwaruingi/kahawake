@@ -5,7 +5,13 @@ import { Job } from '@/models/Job';
 import { dbConnect } from '@/lib/mongoose';
 import JobPostingForm from '@/components/jobs/JobPostingForm';
 
-export default async function EditJobPage({ params }: { params: { id: string } }) {
+type EditJobPageProps = {
+  params: {
+    id: string;
+  };
+}
+
+export default async function EditJobPage({ params }: EditJobPageProps) {
   // Get the current session
   const session = await auth();
   

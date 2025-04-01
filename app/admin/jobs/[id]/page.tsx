@@ -31,7 +31,13 @@ interface Job {
   updatedAt: string;
 }
 
-export default function JobEdit({ params }: { params: { id: string } }) {
+type JobEditProps = {
+  params: {
+    id: string;
+  };
+}
+
+export default function JobEdit({ params }: JobEditProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const jobId = params.id;

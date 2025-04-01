@@ -10,7 +10,7 @@ import { MongoClient } from "mongodb";
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
-  let testClient = null;
+  const testClient = null;
   try {
     console.log("Testing MongoDB connection...");
     // Use the clientPromise to get connection string, but create a new client for testing
