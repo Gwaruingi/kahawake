@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       
     console.error('Error creating company:', errorObj);
     return NextResponse.json(
-      { error: error.message || 'Failed to create company profile' 
+      { error: errorObj.message || 'Failed to create company profile' 
     },
       { status: 500 }
     );
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
       
     console.error('Error fetching companies:', errorObj);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch companies' 
+      { error: errorObj.message || 'Failed to fetch companies' 
     },
       { status: 500 }
     );
