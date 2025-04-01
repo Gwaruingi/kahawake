@@ -100,7 +100,7 @@ export default function CandidateProfilePage() {
   };
 
   // Show notification
-  const showNotification = (type, message) => {
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ show: true, type, message });
     setTimeout(() => {
       setNotification({ show: false, type: '', message: '' });
