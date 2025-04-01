@@ -83,15 +83,14 @@ export async function PATCH(
     }
     
     // Prevent modifying admin users
-    const targetUser = await User.findById(id).lean() as {
-      _id: mongoose.Types.ObjectId;
-      role: string;
-      [key: string]: any;
-    };
+    const targetUserDoc = await User.findById(id).lean();
     
-    if (!targetUser) {
+    if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    
+    // Safe type assertion after null check
+    const targetUser = targetUserDoc as unknown as { role: string; [key: string]: any };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -148,15 +147,14 @@ export async function DELETE(
     }
     
     // Prevent deleting admin users
-    const targetUser = await User.findById(id).lean() as {
-      _id: mongoose.Types.ObjectId;
-      role: string;
-      [key: string]: any;
-    };
+    const targetUserDoc = await User.findById(id).lean();
     
-    if (!targetUser) {
+    if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    
+    // Safe type assertion after null check
+    const targetUser = targetUserDoc as unknown as { role: string; [key: string]: any };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
