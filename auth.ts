@@ -49,13 +49,13 @@ const testConnection = async () => {
 testConnection().catch(() => console.log("Connection test failed but continuing startup"));
 
 // Create a custom adapter that extends the MongoDB adapter to handle the role field
-const createCustomAdapter = (client) => {
+const createCustomAdapter = (client: Promise<MongoClient>) => {
   const adapter = MongoDBAdapter(client);
   
   // Create a wrapper for the adapter that adds the role field
   return {
     ...adapter,
-    createUser: async (userData) => {
+    createUser: async (userData: any) => {
       // Set default role to 'jobseeker' if not provided
       const userWithRole = {
         ...userData,
