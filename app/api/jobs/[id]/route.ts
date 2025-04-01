@@ -155,7 +155,6 @@ export async function PATCH(
     // Update job fields
     Object.keys(jobData).forEach(key => {
       if (key !== '_id' && key !== 'companyId' && key !== 'companyName') {
-        // @ts-expect-error
         job[key] = jobData[key];
       }
     });
