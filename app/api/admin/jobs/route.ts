@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { auth } from "@/auth";
 import { Job } from "@/models/Job";
+import { Company } from "@/models/Company";
 
 // Ensure database connection
 async function ensureDbConnected() {
