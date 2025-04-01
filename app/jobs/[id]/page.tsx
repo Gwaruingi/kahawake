@@ -35,10 +35,11 @@ interface Job {
   createdAt: string;
 }
 
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type JobDetailPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
@@ -47,11 +48,29 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+
+  // Resolve params if it's a Promise
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setJobId(resolvedParams.id);
+      } catch (err) {
+        setError('Failed to resolve route parameters');
+        setLoading(false);
+      }
+    };
+    
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
+    if (!jobId) return;
+    
     const fetchJob = async () => {
       try {
-        const response = await fetch(`/api/jobs/${params.id}`);
+        const response = await fetch(`/api/jobs/${jobId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch job details');
         }
@@ -66,7 +85,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     };
 
     fetchJob();
-  }, [params.id]);
+  }, [jobId]);
 
   const isDeadlinePassed = () => {
     if (!job) return false;
@@ -76,13 +95,13 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   };
 
   const handleApply = () => {
-    if (!session) {
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/jobs/${params.id}`)}`);
+    if (!session || !jobId) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/jobs/${jobId}`)}`);
       return;
     }
 
     // Redirect to internal application form
-    router.push(`/apply/${params.id}`);
+    router.push(`/apply/${jobId}`);
   };
 
   if (loading) {
@@ -245,7 +264,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             </button>
             {!session && !isJobClosed && (
               <p className="mt-2 text-sm text-gray-500">
-                You need to <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(`/jobs/${params.id}`)}`} className="text-blue-600 hover:text-blue-800">sign in</Link> to apply for this job.
+                You need to <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(`/jobs/${jobId}`)}`} className="text-blue-600 hover:text-blue-800">sign in</Link> to apply for this job.
               </p>
             )}
           </div>
