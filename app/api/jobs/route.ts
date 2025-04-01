@@ -32,9 +32,9 @@ export async function GET(request: Request) {
     // If user is a company, they should only see their own jobs
     if (session?.user?.role === 'company') {
       // Find the company associated with the current user
-      const userCompany = await Company.findOne({ userId: session.user.id }).lean();
+      const userCompanyDoc = await Company.findOne({ userId: session.user.id }).lean();
       
-      if (!userCompany) {
+      if (!userCompanyDoc) {
         return NextResponse.json({
           jobs: [],
           pagination: {
@@ -45,6 +45,14 @@ export async function GET(request: Request) {
           }
         });
       }
+      
+      // Type assertion to ensure TypeScript recognizes the company properties
+      const userCompany = (userCompanyDoc as unknown) as { 
+        _id: { toString(): string }; 
+        name: string; 
+        userId?: string;
+        status: string;
+      };
       
       // Override any companyId parameter to ensure they only see their own jobs
       query.companyId = userCompany._id.toString();
@@ -123,17 +131,25 @@ export async function POST(request: Request) {
     await dbConnect();
     
     // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to post jobs."
       );
     }
+    
+    // Type assertion to ensure TypeScript recognizes the company properties
+    const company = (companyDoc as unknown) as { 
+      _id: { toString(): string }; 
+      name: string; 
+      userId?: string;
+      status: string;
+    };
     
     // Parse job data from request
     const jobData = await request.json();
@@ -154,19 +170,23 @@ export async function POST(request: Request) {
       const error = dbError instanceof Error ? dbError : new Error('An error occurred');
       
       // If it's a connection error, wait and retry
-      if (dbError.name === 'MongoNetworkError' || 
+      if (error.name === 'MongoNetworkError' || 
           error.message?.includes('ECONNREFUSED') ||
-          dbError.name === 'MongoServerSelectionError') {
+          error.name === 'MongoServerSelectionError') {
         
         console.log("Database connection issue, retrying job creation...");
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Second attempt
-        job = await Job.create(jobData);
-      
-    } else {
+        try {
+          job = await Job.create(jobData);
+        } catch (retryError) {
+          console.error("Failed on retry:", retryError);
+          throw error; // Throw the original error
+        }
+      } else {
         // If it's not a connection error, rethrow
-        throw dbError;
+        throw error;
       }
     }
     
