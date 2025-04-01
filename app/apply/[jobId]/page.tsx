@@ -180,7 +180,7 @@ export default function JobApplicationPage({ params }: JobApplicationPageProps) 
     
     try {
       // Upload CV if provided
-      const cvUrl = null;
+      let cvUrl = null;
       if (cvFile) {
         const formData = new FormData();
         formData.append('file', cvFile);
