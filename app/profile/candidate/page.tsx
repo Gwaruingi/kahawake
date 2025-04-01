@@ -48,7 +48,31 @@ export default function CandidateProfilePage() {
   };
 
   // Save profile data
-  const saveProfile = async (profileData) => {
+  const saveProfile = async (profileData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    bio?: string;
+    skills?: string[];
+    education?: {
+      institution: string;
+      degree: string;
+      fieldOfStudy: string;
+      startDate: string;
+      endDate?: string;
+      current?: boolean;
+    }[];
+    experience?: {
+      company: string;
+      position: string;
+      startDate: string;
+      endDate?: string;
+      current?: boolean;
+      description?: string;
+    }[];
+    resumeUrl?: string;
+  }) => {
     try {
       setLoading(true);
       const response = await fetch('/api/profile', {
