@@ -34,10 +34,11 @@ interface Company {
   updatedAt: string;
 }
 
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type UserDetailPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function UserDetailPage({ params }: UserDetailPageProps) {
@@ -47,9 +48,25 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Resolve params if it's a Promise
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setUserId(resolvedParams.id);
+      } catch (err) {
+        setError('Failed to resolve route parameters');
+        setLoading(false);
+      }
+    };
+    
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
-    if (sessionStatus === 'loading') return;
+    if (sessionStatus === 'loading' || !userId) return;
 
     if (!session || session.user.role !== 'admin') {
       router.push('/auth/signin');
@@ -60,7 +77,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
       try {
         setLoading(true);
         // Fetch user details
-        const userResponse = await fetch(`/api/admin/users/${params.id}`);
+        const userResponse = await fetch(`/api/admin/users/${userId}`);
         if (!userResponse.ok) {
           throw new Error('Failed to fetch user details');
         }
@@ -70,7 +87,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
         // If user is a company, fetch company details
         if (userData.role === 'company') {
           try {
-            const companyResponse = await fetch(`/api/companies?userId=${params.id}`);
+            const companyResponse = await fetch(`/api/companies?userId=${userId}`);
             if (companyResponse.ok) {
               const companiesData = await companyResponse.json();
               if (companiesData && companiesData.length > 0) {
@@ -93,7 +110,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
     };
 
     fetchUserData();
-  }, [session, sessionStatus, router, params.id]);
+  }, [session, sessionStatus, router, userId]);
 
   if (sessionStatus === 'loading' || loading) {
     return (
