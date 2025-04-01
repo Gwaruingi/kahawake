@@ -69,7 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials: { email?: string; password?: string }) {
+      async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error('Please enter your email and password');
@@ -87,16 +87,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.log('Stored password hash:', user.password);
           
           // Debug password comparison
-          const plainPassword = credentials.password!;
+          const plainPassword = credentials.password;
           console.log('Attempting to verify password');
           
-          const isValid = await bcrypt.compare(plainPassword, user.password);
+          // Use type assertion to ensure TypeScript recognizes these as strings
+          const isValid = await bcrypt.compare(
+            plainPassword as string, 
+            user.password as string
+          );
           console.log('Password verification result:', isValid);
           
           if (!isValid) {
             // For testing purposes, create a new hash with the provided password
             // This helps debug if the hashing algorithm is consistent
-            const testHash = await bcrypt.hash(plainPassword, 12);
+            const testHash = await bcrypt.hash(plainPassword as string, 12);
             console.log('Test hash with provided password:', testHash);
             
             throw new Error('Invalid password');
