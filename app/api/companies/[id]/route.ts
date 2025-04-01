@@ -106,11 +106,19 @@ export async function PATCH(
       );
     }
     
+    // Type assertion to ensure TypeScript recognizes the company properties
+    const typedCompany = company as { 
+      _id: string; 
+      name: string; 
+      userId?: string;
+      status: string;
+    };
+    
     // Find the company owner using the userId
     let user = null;
     try {
-      if (company.userId) {
-        user = await User.findById(company.userId).lean();
+      if (typedCompany.userId) {
+        user = await User.findById(typedCompany.userId).lean();
       }
     } catch (userError) {
       console.error('Error finding user:', userError);
@@ -125,7 +133,7 @@ export async function PATCH(
         emailSubject = 'Company Profile Approved';
         emailHtml = `
           <h1>Your Company Profile Has Been Approved!</h1>
-          <p>Dear ${company.name},</p>
+          <p>Dear ${typedCompany.name},</p>
           <p>We're pleased to inform you that your company profile has been approved.</p>
           <p>You can now post jobs and start recruiting talented professionals.</p>
           <p><a href="${process.env.NEXTAUTH_URL}/company/dashboard">Go to your dashboard</a> to get started.</p>
@@ -137,7 +145,7 @@ export async function PATCH(
         emailSubject = 'Company Profile Needs Updates';
         emailHtml = `
           <h1>Your Company Profile Requires Updates</h1>
-          <p>Dear ${company.name},</p>
+          <p>Dear ${typedCompany.name},</p>
           <p>We've reviewed your company profile and found that it requires some updates before it can be approved.</p>
           ${rejectionReason ? `<p><strong>Reason:</strong> ${rejectionReason}</p>` : ''}
           <p>Please <a href="${process.env.NEXTAUTH_URL}/company/profile/edit">update your profile</a> and resubmit for approval.</p>
@@ -164,7 +172,7 @@ export async function PATCH(
     
     return NextResponse.json({ 
       message: `Company status updated to ${status}`,
-      company 
+      company: typedCompany
     });
   } catch (error) {
       const errorObj = error instanceof Error ? error : new Error('An error occurred');
