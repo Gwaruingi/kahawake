@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       const error = emailError instanceof Error ? emailError : new Error('An error occurred');
       
       console.error('Failed to send email:', emailError);
-      console.error('Error details:', errorObj.message);
+      console.error('Error details:', error.message);
       
       // We still return success to the client to prevent email enumeration
       // But we log the error for debugging
