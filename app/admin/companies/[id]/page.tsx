@@ -25,9 +25,9 @@ interface Company {
   updatedAt: string;
 }
 
-// In Next.js 15, params can be a Promise for dynamic routes
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type CompanyDetailPageProps = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
@@ -45,7 +45,7 @@ export default function CompanyDetailPage({ params }: CompanyDetailPageProps) {
     // Resolve params if it's a Promise
     const resolveParams = async () => {
       try {
-        const resolvedParams = params instanceof Promise ? await params : params;
+        const resolvedParams = await params;
         setResolvedId(resolvedParams.id);
       } catch (err) {
         setError('Failed to resolve route parameters');
