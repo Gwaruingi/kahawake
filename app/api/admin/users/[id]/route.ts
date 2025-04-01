@@ -83,7 +83,11 @@ export async function PATCH(
     }
     
     // Prevent modifying admin users
-    const targetUser = await User.findById(id).lean();
+    const targetUser = await User.findById(id).lean() as {
+      _id: mongoose.Types.ObjectId;
+      role: string;
+      [key: string]: any;
+    };
     
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -144,7 +148,11 @@ export async function DELETE(
     }
     
     // Prevent deleting admin users
-    const targetUser = await User.findById(id).lean();
+    const targetUser = await User.findById(id).lean() as {
+      _id: mongoose.Types.ObjectId;
+      role: string;
+      [key: string]: any;
+    };
     
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
