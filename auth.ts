@@ -48,8 +48,29 @@ const testConnection = async () => {
 // Initialize connection test - but don't block startup if it fails
 testConnection().catch(() => console.log("Connection test failed but continuing startup"));
 
+// Create a custom adapter that extends the MongoDB adapter to handle the role field
+const createCustomAdapter = (client) => {
+  const adapter = MongoDBAdapter(client);
+  
+  // Create a wrapper for the adapter that adds the role field
+  return {
+    ...adapter,
+    createUser: async (userData) => {
+      // Set default role to 'jobseeker' if not provided
+      const userWithRole = {
+        ...userData,
+        role: userData.role || 'jobseeker'
+      };
+      
+      // Call the original createUser function with the modified user data
+      const user = await adapter.createUser(userWithRole);
+      return user;
+    }
+  };
+};
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: createCustomAdapter(clientPromise),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
