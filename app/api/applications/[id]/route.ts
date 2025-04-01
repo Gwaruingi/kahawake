@@ -69,7 +69,7 @@ export async function GET(
     }
     
     // Check if the user is authorized to view this application
-    if (session.user.role === 'user') {
+    if (session.user.role === 'jobseeker') {
       // Job seekers can only view their own applications
       if (application.userId.toString() !== session.user.id) {
         return handlePermissionError(
@@ -300,7 +300,7 @@ export async function PATCH(
           // Continue even if email fails
         }
       }
-    } else if (session.user.role === 'user') {
+    } else if (session.user.role === 'jobseeker') {
       // Job seekers can only update their own applications
       if (application.userId.toString() !== session.user.id) {
         return handlePermissionError(
