@@ -43,19 +43,23 @@ export async function GET(
       const error = dbError instanceof Error ? dbError : new Error('An error occurred');
       
       // If it's a connection error, wait and retry
-      if (dbError.name === 'MongoNetworkError' || 
+      if (error.name === 'MongoNetworkError' || 
           error.message?.includes('ECONNREFUSED') ||
-          dbError.name === 'MongoServerSelectionError') {
+          error.name === 'MongoServerSelectionError') {
         
         console.log("Database connection issue, retrying job fetch...");
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Second attempt
-        job = await Job.findById(id).lean();
-      
-    } else {
+        try {
+          job = await Job.findById(id).lean();
+        } catch (retryError) {
+          console.error("Failed on retry:", retryError);
+          throw error; // Throw the original error
+        }
+      } else {
         // If it's not a connection error, rethrow
-        throw dbError;
+        throw error;
       }
     }
     
