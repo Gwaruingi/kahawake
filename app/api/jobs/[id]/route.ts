@@ -102,30 +102,47 @@ export async function PATCH(
     const { id } = await params;
     
     // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to update jobs."
       );
     }
     
+    // Type assertion to ensure TypeScript recognizes the company properties
+    const company = (companyDoc as unknown) as { 
+      _id: { toString(): string }; 
+      name: string; 
+      userId?: string;
+      status: string;
+    };
+    
     // Parse job data from request
     const jobData = await request.json();
     
     // Find the job to update
-    const job = await Job.findById(id);
+    const jobDoc = await Job.findById(id);
     
-    if (!job) {
+    if (!jobDoc) {
       return handleNotFoundError(
         new Error(`Job with ID ${id} not found`),
         "Job not found"
       );
     }
+    
+    // Type assertion to ensure TypeScript recognizes the job properties
+    const job = (jobDoc as unknown) as {
+      _id: string;
+      title: string;
+      companyId: string;
+      status: string;
+      [key: string]: any;
+    };
     
     // Check if the job belongs to the company
     if (job.companyId !== company._id.toString()) {
@@ -187,27 +204,44 @@ export async function DELETE(
     const { id } = await params;
     
     // Check if the company has an approved profile
-    const company = await Company.findOne({ 
+    const companyDoc = await Company.findOne({ 
       userId: session.user.id,
       status: 'approved'
     }).lean();
     
-    if (!company) {
+    if (!companyDoc) {
       return handlePermissionError(
         new Error("No approved company profile"),
         "You need an approved company profile to delete jobs."
       );
     }
     
-    // Find the job to delete
-    const job = await Job.findById(id);
+    // Type assertion to ensure TypeScript recognizes the company properties
+    const company = (companyDoc as unknown) as { 
+      _id: { toString(): string }; 
+      name: string; 
+      userId?: string;
+      status: string;
+    };
     
-    if (!job) {
+    // Find the job to delete
+    const jobDoc = await Job.findById(id);
+    
+    if (!jobDoc) {
       return handleNotFoundError(
         new Error(`Job with ID ${id} not found`),
         "Job not found"
       );
     }
+    
+    // Type assertion to ensure TypeScript recognizes the job properties
+    const job = (jobDoc as unknown) as {
+      _id: string;
+      title: string;
+      companyId: string;
+      status: string;
+      [key: string]: any;
+    };
     
     // Check if the job belongs to the company
     if (job.companyId !== company._id.toString()) {
