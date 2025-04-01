@@ -107,7 +107,7 @@ export async function PATCH(
     }
     
     // Find the company owner using the userId
-    const user = null;
+    let user = null;
     try {
       if (company.userId) {
         user = await User.findById(company.userId).lean();
