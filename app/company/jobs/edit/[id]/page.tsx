@@ -5,19 +5,23 @@ import { Job } from '@/models/Job';
 import { dbConnect } from '@/lib/mongoose';
 import JobPostingForm from '@/components/jobs/JobPostingForm';
 
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type EditJobPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditJobPage({ params }: EditJobPageProps) {
   // Get the current session
   const session = await auth();
   
+  // Resolve the params Promise
+  const resolvedParams = await params;
+  
   // If not logged in or not a company, redirect to login
   if (!session?.user || session.user.role !== 'company') {
-    return redirect('/auth/login?callbackUrl=/company/jobs/edit/' + params.id);
+    return redirect('/auth/login?callbackUrl=/company/jobs/edit/' + resolvedParams.id);
   }
   
   // Connect to the database
@@ -34,7 +38,7 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
   }
   
   // Get the job to edit
-  const job = await Job.findById(params.id).lean();
+  const job = await Job.findById(resolvedParams.id).lean();
   
   // If job doesn't exist or doesn't belong to this company, redirect
   if (!job || job.companyId.toString() !== company._id.toString()) {
