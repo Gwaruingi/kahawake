@@ -63,8 +63,13 @@ const createCustomAdapter = (client: Promise<MongoClient>) => {
       };
       
       // Call the original createUser function with the modified user data
-      const user = await adapter.createUser(userWithRole);
-      return user;
+      if (adapter.createUser) {
+        const user = await adapter.createUser(userWithRole);
+        return user;
+      }
+      
+      // Fallback in case createUser is undefined
+      throw new Error('Adapter createUser function is undefined');
     }
   };
 };
