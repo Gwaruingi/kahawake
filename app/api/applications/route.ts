@@ -123,14 +123,22 @@ export async function POST(request: Request) {
     }
     
     // Get user profile
-    const profile = await Profile.findOne({ email: session.user.email }).lean();
+    const profileDoc = await Profile.findOne({ email: session.user.email }).lean();
     
-    if (!profile) {
+    if (!profileDoc) {
       return NextResponse.json(
         { error: "Please complete your profile before applying" },
         { status: 400 }
       );
     }
+    
+    // Type assertion after null check
+    const profile = profileDoc as unknown as {
+      name: string;
+      email: string;
+      resume?: string;
+      [key: string]: any;
+    };
     
     // Create application - resume is now optional
     const applicationData: any = {
