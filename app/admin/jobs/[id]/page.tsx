@@ -31,16 +31,17 @@ interface Job {
   updatedAt: string;
 }
 
+// In Next.js 15, params must be a Promise for dynamic routes in production builds
 type JobEditProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function JobEdit({ params }: JobEditProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const jobId = params.id;
+  const [jobId, setJobId] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,8 +67,25 @@ export default function JobEdit({ params }: JobEditProps) {
   // New requirement input
   const [newRequirement, setNewRequirement] = useState('');
   
+  // Resolve params if it's a Promise
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setJobId(resolvedParams.id);
+      } catch (err) {
+        setError('Failed to resolve route parameters');
+        setLoading(false);
+      }
+    };
+    
+    resolveParams();
+  }, [params]);
+  
   // Fetch job data
   useEffect(() => {
+    if (!jobId) return;
+    
     const fetchJob = async () => {
       if (status === 'authenticated' && session?.user?.role === 'admin') {
         try {
@@ -169,6 +187,11 @@ export default function JobEdit({ params }: JobEditProps) {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!jobId) {
+      setError('Job ID not available');
+      return;
+    }
     
     try {
       setSaving(true);
