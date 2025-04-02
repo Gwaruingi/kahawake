@@ -227,77 +227,71 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, errors, touched, isSubmitting, isValid, dirty }) => (
+        {({ values, errors, touched, handleSubmit, isSubmitting, isValid }) => (
           <Form className="space-y-6">
             {/* Job Title */}
             <div>
-              <Label htmlFor="title">Job Title <span className="text-red-500">*</span></Label>
+              <Label>Job Title <span className="text-red-500">*</span></Label>
               <Field
                 as={Input}
-                id="title"
                 name="title"
-                placeholder="e.g. Senior Software Engineer"
+                placeholder="Enter job title"
                 className={`w-full ${errors.title && touched.title ? 'border-red-500' : ''}`}
               />
-              <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Job Type */}
             <div>
-              <Label htmlFor="jobType">Job Type <span className="text-red-500">*</span></Label>
+              <Label>Job Type <span className="text-red-500">*</span></Label>
               <Field
                 as="select"
-                id="jobType"
                 name="jobType"
-                className={`w-full p-2 border rounded-md ${errors.jobType && touched.jobType ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full ${errors.jobType && touched.jobType ? 'border-red-500' : ''}`}
               >
-                <option value="">Select Job Type</option>
+                <option value="">Select job type</option>
                 <option value="Full-time">Full-time</option>
                 <option value="Part-time">Part-time</option>
                 <option value="Contract">Contract</option>
                 <option value="Remote">Remote</option>
               </Field>
-              <ErrorMessage name="jobType" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="jobType" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Location */}
             <div>
-              <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
+              <Label>Location <span className="text-red-500">*</span></Label>
               <Field
                 as={Input}
-                id="location"
                 name="location"
-                placeholder="e.g. New York, NY or Remote"
+                placeholder="Enter location"
                 className={`w-full ${errors.location && touched.location ? 'border-red-500' : ''}`}
               />
-              <ErrorMessage name="location" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="location" component="div" className="text-red-500 text-sm" />
             </div>
 
-            {/* Salary Range */}
+            {/* Salary */}
             <div>
-              <Label htmlFor="salary">Salary Range (Optional)</Label>
+              <Label>Salary</Label>
               <Field
                 as={Input}
-                id="salary"
                 name="salary"
-                placeholder="e.g. $60,000 - $80,000/year"
-                className="w-full"
+                placeholder="Enter salary range"
+                className={`w-full ${errors.salary && touched.salary ? 'border-red-500' : ''}`}
               />
-              <ErrorMessage name="salary" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="salary" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Job Description */}
             <div>
-              <Label htmlFor="description">Job Description <span className="text-red-500">*</span></Label>
+              <Label>Job Description <span className="text-red-500">*</span></Label>
               <Field
                 as={Textarea}
-                id="description"
                 name="description"
-                rows={6}
-                placeholder="Provide a detailed description of the job role..."
+                placeholder="Enter job description"
                 className={`w-full ${errors.description && touched.description ? 'border-red-500' : ''}`}
               />
-              <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="description" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Responsibilities */}
@@ -313,7 +307,7 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                           name={`responsibilities.${index}`}
                           placeholder="Add a responsibility"
                           className={`w-full ${
-                            errors.responsibilities?.[index] && touched.responsibilities?.[index]
+                            (errors.responsibilities as any)?.[index] && (touched.responsibilities as any)?.[index]
                               ? 'border-red-500'
                               : ''
                           }`}
@@ -334,22 +328,20 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                     <button
                       type="button"
                       onClick={() => push('')}
-                      className="flex items-center text-blue-600 hover:text-blue-800 mt-2"
+                      className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
                     >
-                      <PlusCircleIcon className="h-5 w-5 mr-1" />
+                      <PlusCircleIcon className="h-5 w-5" />
                       Add Responsibility
                     </button>
-                    {typeof errors.responsibilities === 'string' && (
-                      <div className="text-red-500 text-sm">{errors.responsibilities}</div>
-                    )}
                   </div>
                 )}
               </FieldArray>
+              <ErrorMessage name="responsibilities" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Requirements */}
             <div>
-              <Label>Requirements & Qualifications <span className="text-red-500">*</span></Label>
+              <Label>Requirements <span className="text-red-500">*</span></Label>
               <FieldArray name="requirements">
                 {({ remove, push }) => (
                   <div className="space-y-2">
@@ -360,7 +352,7 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                           name={`requirements.${index}`}
                           placeholder="Add a requirement"
                           className={`w-full ${
-                            errors.requirements?.[index] && touched.requirements?.[index]
+                            (errors.requirements as any)?.[index] && (touched.requirements as any)?.[index]
                               ? 'border-red-500'
                               : ''
                           }`}
@@ -381,53 +373,41 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
                     <button
                       type="button"
                       onClick={() => push('')}
-                      className="flex items-center text-blue-600 hover:text-blue-800 mt-2"
+                      className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
                     >
-                      <PlusCircleIcon className="h-5 w-5 mr-1" />
+                      <PlusCircleIcon className="h-5 w-5" />
                       Add Requirement
                     </button>
-                    {typeof errors.requirements === 'string' && (
-                      <div className="text-red-500 text-sm">{errors.requirements}</div>
-                    )}
                   </div>
                 )}
               </FieldArray>
+              <ErrorMessage name="requirements" component="div" className="text-red-500 text-sm" />
             </div>
 
             {/* Application Deadline */}
             <div>
-              <Label htmlFor="applicationDeadline">Application Deadline <span className="text-red-500">*</span></Label>
+              <Label>Application Deadline <span className="text-red-500">*</span></Label>
               <Field
-                as={Input}
                 type="date"
-                id="applicationDeadline"
                 name="applicationDeadline"
-                min={new Date().toISOString().split('T')[0]}
                 className={`w-full ${errors.applicationDeadline && touched.applicationDeadline ? 'border-red-500' : ''}`}
               />
-              <ErrorMessage name="applicationDeadline" component="div" className="text-red-500 text-sm mt-1" />
+              <ErrorMessage name="applicationDeadline" component="div" className="text-red-500 text-sm" />
             </div>
 
-            {/* How to Apply - Note */}
-            <div className="bg-blue-50 p-4 rounded-md">
-              <h3 className="text-md font-medium text-blue-800 mb-2">How to Apply</h3>
-              <p className="text-sm text-blue-700">
-                All applications will be processed through our internal job portal. Candidates will need to sign in and complete the application form.
-              </p>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex justify-end space-x-4 pt-4">
+            <div className="flex justify-end gap-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => handlePreview(values)}
-                disabled={!isValid || isSubmitting}
+                onClick={() => router.back()}
               >
-                Preview Job
+                Cancel
               </Button>
-              <Button type="submit" disabled={!isValid || isSubmitting}>
-                {loading ? <LoadingSpinner /> : isEditMode ? 'Update Job' : 'Post Job'}
+              <Button
+                type="submit"
+                disabled={isSubmitting || !isValid}
+              >
+                {isSubmitting ? <LoadingSpinner /> : isEditMode ? 'Update Job' : 'Post Job'}
               </Button>
             </div>
           </Form>
