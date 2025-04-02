@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { User } from "@/models/User";
+import { User, IUserLean } from "@/models/User";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
 import bcrypt from 'bcrypt';
@@ -31,7 +31,7 @@ export async function GET(
     // Fetch user
     const user = await User.findById(id)
       .select('name email role companyName isActive createdAt')
-      .lean();
+      .lean<IUserLean>();
     
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -84,21 +84,14 @@ export async function PATCH(
     }
     
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as unknown as {
-      _id: string;
-      role: string;
-      [key: string]: any;
-    };
-
     // Check if the role exists and is valid before accessing it
-    if (targetUser && targetUser.role === 'admin') {
+    if (targetUserDoc && targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -129,7 +122,7 @@ export async function PATCH(
         isActive
       },
       { new: true }
-    ).lean();
+    ).lean<IUserLean>();
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -174,21 +167,14 @@ export async function DELETE(
     }
     
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as unknown as {
-      _id: string;
-      role: string;
-      [key: string]: any;
-    };
-
     // Check if the role exists and is valid before accessing it
-    if (targetUser && targetUser.role === 'admin') {
+    if (targetUserDoc && targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }

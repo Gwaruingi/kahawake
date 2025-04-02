@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import clientPromise from '@/lib/mongodb';
 
 // Initialize MongoDB connection
@@ -32,6 +32,19 @@ const initMongoDB = async () => {
 // Initialize connection (will be called when this module is imported)
 initMongoDB();
 
+// Define the interface for the plain object structure returned by lean()
+export interface IUserLean {
+  _id: string; // .lean() typically converts ObjectId to string
+  name: string;
+  email: string;
+  role: 'admin' | 'company' | 'jobseeker';
+  companyName?: string;
+  isActive: boolean;
+  createdAt?: Date; // Added by timestamps: true
+  updatedAt?: Date; // Added by timestamps: true
+  __v?: number; // .lean() includes __v by default
+}
+
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -53,4 +66,4 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
+export const User = mongoose.models.User || mongoose.model<IUserLean>('User', userSchema);
