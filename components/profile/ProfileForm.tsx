@@ -165,7 +165,6 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
 
     try {
       // Upload profile picture if changed
-      const profilePicturePath = profilePicture;
       if (profilePictureFile) {
         const formData = new FormData();
         formData.append('file', profilePictureFile);
@@ -183,7 +182,6 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
       }
 
       // Upload resume if changed
-      const resumePath = resume;
       if (resumeFile) {
         const formData = new FormData();
         formData.append('file', resumeFile);
@@ -200,7 +198,7 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
         }
       }
 
-      // Prepare profile data
+      // Submit form data
       const profileData = {
         name,
         email: userEmail,
@@ -209,20 +207,19 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
         skills,
         education: education.map(edu => ({
           ...edu,
-          startDate: edu.startDate ? new Date(edu.startDate) : null,
-          endDate: edu.endDate ? new Date(edu.endDate) : null,
+          startDate: new Date(edu.startDate).toISOString(),
+          endDate: edu.endDate ? new Date(edu.endDate).toISOString() : null,
         })),
         experience: experience.map(exp => ({
           ...exp,
-          startDate: exp.startDate ? new Date(exp.startDate) : null,
-          endDate: exp.endDate ? new Date(exp.endDate) : null,
+          startDate: new Date(exp.startDate).toISOString(),
+          endDate: exp.endDate ? new Date(exp.endDate).toISOString() : null,
         })),
       };
 
-      // Save profile
       onSave(profileData);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error submitting profile:', error);
     } finally {
       setIsSubmitting(false);
     }
