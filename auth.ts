@@ -13,7 +13,7 @@ import { Document } from 'mongoose';
 import { AdapterUser } from "next-auth/adapters";
 
 // Define the User type with proper properties
-interface UserModel extends Document {
+interface AuthUser extends Document {
   _id: mongoose.Types.ObjectId;
   id: string;
   name: string;
@@ -27,7 +27,7 @@ interface UserModel extends Document {
 }
 
 // Export the User type for use in other files
-export type UserType = UserModel;
+export type UserType = AuthUser;
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
@@ -144,7 +144,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         // Convert MongoDB ObjectId to string
-        token.id = (user as UserModel)._id.toString();
+        token.id = (user as AuthUser)._id.toString();
       }
       return token;
     },
