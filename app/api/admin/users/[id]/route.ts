@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { User, IUserLean, isUserLean } from "@/models/User";
+import { User, IUserLean } from "@/models/User";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
 import bcrypt from 'bcrypt';
@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 // GET handler to fetch a specific user
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Get the current session
@@ -23,7 +23,7 @@ export async function GET(
     await ensureDbConnected();
     
     // Validate ID
-    const { id } = await params;
+    const { id } = params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -50,7 +50,7 @@ export async function GET(
 // PATCH handler to update a user
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Get the current session
@@ -65,7 +65,7 @@ export async function PATCH(
     await ensureDbConnected();
     
     // Get user ID
-    const { id } = await params;
+    const { id } = params;
     
     // Validate ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -90,13 +90,15 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use the type guard function to ensure the document is correctly typed
-    if (!isUserLean(targetUserDoc)) {
-      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
-    }
+    // Use a type assertion with a runtime check to ensure type safety
+    const targetUser = targetUserDoc as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
-    // Now TypeScript knows targetUserDoc is definitely IUserLean
-    if (targetUserDoc.role === 'admin') {
+    // Verify the role exists before accessing it
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -149,7 +151,7 @@ export async function PATCH(
 // DELETE handler to remove a user
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Get the current session
@@ -164,7 +166,7 @@ export async function DELETE(
     await ensureDbConnected();
     
     // Get user ID
-    const { id } = await params;
+    const { id } = params;
     
     // Validate ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -178,13 +180,15 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use the type guard function to ensure the document is correctly typed
-    if (!isUserLean(targetUserDoc)) {
-      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
-    }
+    // Use a type assertion with a runtime check to ensure type safety
+    const targetUser = targetUserDoc as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
-    // Now TypeScript knows targetUserDoc is definitely IUserLean
-    if (targetUserDoc.role === 'admin') {
+    // Verify the role exists before accessing it
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
