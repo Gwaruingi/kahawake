@@ -94,14 +94,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();
+    const targetUser = await User.findById(id).lean<IUserLean>();
     
-    if (!targetUserDoc) {
+    if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with proper type safety
-    if ((targetUserDoc as IUserLean).role === 'admin') {
+    // Handle both array and single object cases
+    const user = Array.isArray(targetUser) ? targetUser[0] : targetUser;
+    if (user?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -186,14 +187,15 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();
+    const targetUser = await User.findById(id).lean<IUserLean>();
     
-    if (!targetUserDoc) {
+    if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with proper type safety
-    if ((targetUserDoc as IUserLean).role === 'admin') {
+    // Handle both array and single object cases
+    const user = Array.isArray(targetUser) ? targetUser[0] : targetUser;
+    if (user?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
