@@ -90,8 +90,8 @@ export async function PATCH(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as unknown as {
-      _id: string;
+    const targetUser = targetUserDoc as {
+      _id: mongoose.Types.ObjectId;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
@@ -158,8 +158,8 @@ export async function DELETE(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as unknown as {
-      _id: string;
+    const targetUser = targetUserDoc as {
+      _id: mongoose.Types.ObjectId;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
