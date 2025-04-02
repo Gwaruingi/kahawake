@@ -178,7 +178,7 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
         
         const data = await response.json();
         if (response.ok) {
-          profilePicturePath = data.filePath;
+          setProfilePicture(data.filePath);
         }
       }
 
@@ -196,7 +196,7 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
         
         const data = await response.json();
         if (response.ok) {
-          resumePath = data.filePath;
+          setResume(data.filePath);
         }
       }
 
@@ -204,8 +204,8 @@ export default function ProfileForm({ initialData, onSave, userEmail }: ProfileF
       const profileData = {
         name,
         email: userEmail,
-        profilePicture: profilePicturePath,
-        resume: resumePath,
+        profilePicture: profilePicture,
+        resume: resume,
         skills,
         education: education.map(edu => ({
           ...edu,
