@@ -101,7 +101,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Use a more explicit type assertion pattern
-    const targetUser: { _id: string; role: string; [key: string]: any } = targetUserDoc;
+    const targetUser = targetUserDoc as unknown as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
     // Verify the role exists and is valid
     if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
@@ -196,7 +200,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Use a more explicit type assertion pattern
-    const targetUser: { _id: string; role: string; [key: string]: any } = targetUserDoc;
+    const targetUser = targetUserDoc as unknown as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
     // Verify the role exists and is valid
     if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
