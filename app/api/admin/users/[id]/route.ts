@@ -100,9 +100,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get the user document (handle potential array)
-    const userDoc = Array.isArray(targetUserDoc) ? targetUserDoc[0] : targetUserDoc;
-    if (userDoc?.role === 'admin') {
+    // Check the role with proper type safety
+    if ((targetUserDoc as IUserLean).role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -193,9 +192,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get the user document (handle potential array)
-    const userDoc = Array.isArray(targetUserDoc) ? targetUserDoc[0] : targetUserDoc;
-    if (userDoc?.role === 'admin') {
+    // Check the role with proper type safety
+    if ((targetUserDoc as IUserLean).role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
