@@ -89,12 +89,14 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Type assertion using a more flexible type
-    const targetUser = targetUserDoc as {
-      _id: string; // When using lean(), _id is returned as a string
+    // Type assertion using a more precise type
+    type LeanUser = {
+      _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
+    
+    const targetUser = targetUserDoc as unknown as LeanUser;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -157,12 +159,14 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Type assertion using a more flexible type
-    const targetUser = targetUserDoc as {
-      _id: string; // When using lean(), _id is returned as a string
+    // Type assertion using a more precise type
+    type LeanUser = {
+      _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
+    
+    const targetUser = targetUserDoc as unknown as LeanUser;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
