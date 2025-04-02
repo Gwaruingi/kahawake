@@ -101,10 +101,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Use a more explicit type assertion pattern
-    const targetUser = targetUserDoc as IUserLean;
+    const targetUser = targetUserDoc as unknown as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
     // Verify the role exists and is valid
-    if (targetUser.role === 'admin') {
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -135,7 +139,7 @@ export async function PATCH(request: NextRequest) {
         isActive
       },
       { new: true }
-    ).lean<IUserLean>();
+    ).lean();
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -196,10 +200,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Use a more explicit type assertion pattern
-    const targetUser = targetUserDoc as IUserLean;
+    const targetUser = targetUserDoc as unknown as {
+      _id: string;
+      role: string;
+      [key: string]: any;
+    };
 
     // Verify the role exists and is valid
-    if (targetUser.role === 'admin') {
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
@@ -207,7 +215,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the user document
-    const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
+    const deletedUser = await User.findByIdAndDelete(id).lean();
 
     if (!deletedUser) {
       return NextResponse.json(
