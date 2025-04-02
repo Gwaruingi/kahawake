@@ -94,17 +94,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Create a properly typed version of the document
-    const targetUser = targetUserDoc as unknown as { role?: string };
-
-    // Now check the role with proper type safety
-    if (targetUser && targetUser.role === 'admin') {
+    // Check the role with proper type safety
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -135,7 +132,7 @@ export async function PATCH(request: NextRequest) {
         isActive
       },
       { new: true }
-    ).lean() as IUserLean | null;
+    ).lean<IUserLean>();
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -189,17 +186,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Create a properly typed version of the document
-    const targetUser = targetUserDoc as unknown as { role?: string };
-
-    // Now check the role with proper type safety
-    if (targetUser && targetUser.role === 'admin') {
+    // Check the role with proper type safety
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
@@ -207,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the user document
-    const deletedUser = await User.findByIdAndDelete(id).lean() as IUserLean | null;
+    const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
 
     if (!deletedUser) {
       return NextResponse.json(
