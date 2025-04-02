@@ -6,11 +6,6 @@ import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
 import type { NextRequest } from 'next/server';
 
-// Type guard function to check for role property
-function hasRole(doc: any): doc is { role: string } {
-  return doc && typeof doc.role === 'string';
-}
-
 // GET handler to fetch a specific user
 export async function GET(request: NextRequest) {
   try {
@@ -99,14 +94,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with type safety
-    if (hasRole(targetUserDoc) && targetUserDoc.role === 'admin') {
+    // Check the role with proper type safety
+    if ((targetUserDoc as IUserLean).role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -191,14 +186,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with type safety
-    if (hasRole(targetUserDoc) && targetUserDoc.role === 'admin') {
+    // Check the role with proper type safety
+    if ((targetUserDoc as IUserLean).role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
