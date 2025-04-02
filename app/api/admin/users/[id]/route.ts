@@ -94,14 +94,17 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
+    const targetUserDoc = await User.findById(id).lean();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Verify the role exists and is valid
-    if (targetUserDoc && 'role' in targetUserDoc && typeof targetUserDoc.role === 'string' && targetUserDoc.role === 'admin') {
+    // Create a properly typed version of the document
+    const targetUser = targetUserDoc as unknown as { role?: string };
+
+    // Now check the role with proper type safety
+    if (targetUser && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -186,14 +189,17 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
-
+    const targetUserDoc = await User.findById(id).lean();
+    
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Verify the role exists and is valid
-    if (targetUserDoc && 'role' in targetUserDoc && typeof targetUserDoc.role === 'string' && targetUserDoc.role === 'admin') {
+    // Create a properly typed version of the document
+    const targetUser = targetUserDoc as unknown as { role?: string };
+
+    // Now check the role with proper type safety
+    if (targetUser && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
