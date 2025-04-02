@@ -10,7 +10,7 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     // Get the current session
-    const session = await auth();
+    const session: Awaited<ReturnType<typeof auth>> = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch user
-    const user = await User.findById(id)
+    const user: IUserLean | null = await User.findById(id)
       .select('name email role companyName isActive createdAt')
-      .lean<IUserLean>();
+      .lean();
     
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Get the current session
-    const session = await auth();
+    const session: Awaited<ReturnType<typeof auth>> = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -94,7 +94,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
+    const targetUserDoc: IUserLean | null = await User.findById(id).lean();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -121,7 +121,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the user document
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser: IUserLean | null = await User.findByIdAndUpdate(
       id,
       {
         name,
@@ -132,7 +132,7 @@ export async function PATCH(request: NextRequest) {
         isActive
       },
       { new: true }
-    ).lean() as IUserLean | null;
+    ).lean();
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -155,7 +155,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Get the current session
-    const session = await auth();
+    const session: Awaited<ReturnType<typeof auth>> = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -186,7 +186,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
+    const targetUserDoc: IUserLean | null = await User.findById(id).lean();
 
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -201,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the user document
-    const deletedUser = await User.findByIdAndDelete(id).lean() as IUserLean | null;
+    const deletedUser: IUserLean | null = await User.findByIdAndDelete(id).lean();
 
     if (!deletedUser) {
       return NextResponse.json(
