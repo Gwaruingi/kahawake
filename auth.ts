@@ -8,11 +8,12 @@ import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { Adapter } from "next-auth/adapters";
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { AdapterUser } from "next-auth/adapters";
 
 // Define the User type with proper properties
 interface UserType extends Document {
+  _id: Types.ObjectId;
   id: string;
   name: string;
   email: string;
