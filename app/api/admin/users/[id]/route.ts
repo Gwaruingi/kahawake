@@ -88,13 +88,15 @@ export async function PATCH(
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
-    // Type assertion using a more precise type that includes required fields
-    const targetUser = targetUserDoc as unknown as {
+
+    interface UserDocument {
       _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
-    };
+    }
+    
+    // Type assertion after defining the interface
+    const targetUser = targetUserDoc as UserDocument;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -156,13 +158,15 @@ export async function DELETE(
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
-    // Type assertion using a more precise type that includes required fields
-    const targetUser = targetUserDoc as unknown as {
+
+    interface UserDocument {
       _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
-    };
+    }
+    
+    // Type assertion after defining the interface
+    const targetUser = targetUserDoc as UserDocument;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
