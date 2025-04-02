@@ -8,12 +8,13 @@ import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { Adapter } from "next-auth/adapters";
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose from 'mongoose';
+import { Document } from 'mongoose';
 import { AdapterUser } from "next-auth/adapters";
 
 // Define the User type with proper properties
-interface UserType extends Document {
-  _id: Types.ObjectId;
+interface UserModel extends Document {
+  _id: mongoose.Types.ObjectId;
   id: string;
   name: string;
   email: string;
@@ -26,7 +27,7 @@ interface UserType extends Document {
 }
 
 // Export the User type for use in other files
-export type UserType = UserType;
+export type UserType = UserModel;
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
@@ -143,7 +144,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         // Convert MongoDB ObjectId to string
-        token.id = (user as UserType)._id.toString();
+        token.id = (user as UserModel)._id.toString();
       }
       return token;
     },
