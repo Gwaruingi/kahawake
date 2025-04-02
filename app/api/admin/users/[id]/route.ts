@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import { User, IUserLean } from '@/models/User';
+import { User, IUserLean, isUserLean } from '@/models/User';
 import { auth } from '@/auth';
 import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
@@ -100,15 +100,13 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use a type assertion with a runtime check to ensure type safety
-    const targetUser = targetUserDoc as {
-      _id: string;
-      role: string;
-      [key: string]: any;
-    };
+    // Use the type guard function to ensure the document is correctly typed
+    if (!isUserLean(targetUserDoc)) {
+      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
+    }
 
-    // Verify the role exists before accessing it
-    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
+    // Now TypeScript knows targetUserDoc is definitely IUserLean
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -199,15 +197,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use a type assertion with a runtime check to ensure type safety
-    const targetUser = targetUserDoc as {
-      _id: string;
-      role: string;
-      [key: string]: any;
-    };
+    // Use the type guard function to ensure the document is correctly typed
+    if (!isUserLean(targetUserDoc)) {
+      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
+    }
 
-    // Verify the role exists before accessing it
-    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
+    // Now TypeScript knows targetUserDoc is definitely IUserLean
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
