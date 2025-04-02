@@ -89,9 +89,9 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Type assertion using the User model's type
+    // Type assertion using a more flexible type
     const targetUser = targetUserDoc as {
-      _id: mongoose.Types.ObjectId;
+      _id: string; // When using lean(), _id is returned as a string
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
@@ -157,9 +157,9 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Type assertion using the User model's type
+    // Type assertion using a more flexible type
     const targetUser = targetUserDoc as {
-      _id: mongoose.Types.ObjectId;
+      _id: string; // When using lean(), _id is returned as a string
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
