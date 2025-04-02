@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { User } from "@/models/User";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
+import bcrypt from 'bcrypt';
 
 // GET handler to fetch a specific user
 export async function GET(
@@ -92,7 +93,7 @@ export async function PATCH(
     // Type assertion using the actual Mongoose document type
     const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role: string;
+      role?: string;
       [key: string]: any;
     };
 
@@ -104,19 +105,40 @@ export async function PATCH(
       );
     }
     
-    // Update user
+    // Parse the request body
+    const body = await request.json();
+    const { name, email, password, role, companyName, isActive } = body;
+
+    // Validate required fields
+    if (!name || !email) {
+      return NextResponse.json(
+        { error: "Name and email are required" },
+        { status: 400 }
+      );
+    }
+
+    // Update the user document
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: data },
+      {
+        name,
+        email,
+        password: password ? await bcrypt.hash(password, 10) : undefined,
+        role,
+        companyName,
+        isActive
+      },
       { new: true }
-    )
-    .select('name email role companyName isActive')
-    .lean();
-    
-    return NextResponse.json({
-      message: "User updated successfully",
-      user: updatedUser
-    });
+    ).lean();
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: "Failed to update user" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(
@@ -161,7 +183,7 @@ export async function DELETE(
     // Type assertion using the actual Mongoose document type
     const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role: string;
+      role?: string;
       [key: string]: any;
     };
 
