@@ -90,11 +90,7 @@ export async function PATCH(
     }
     
     // Type assertion using a more precise type
-    const targetUser = targetUserDoc as {
-      _id: string;
-      role: 'admin' | 'company' | 'jobseeker';
-      [key: string]: any;
-    };
+    const targetUser = targetUserDoc as Awaited<typeof User.findOne().lean()>;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -158,11 +154,7 @@ export async function DELETE(
     }
     
     // Type assertion using a more precise type
-    const targetUser = targetUserDoc as {
-      _id: string;
-      role: 'admin' | 'company' | 'jobseeker';
-      [key: string]: any;
-    };
+    const targetUser = targetUserDoc as Awaited<typeof User.findOne().lean()>;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
