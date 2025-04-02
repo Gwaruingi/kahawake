@@ -94,17 +94,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use a more explicit type assertion pattern
-    const targetUser = targetUserDoc as IUserLean;
-
     // Verify the role exists and is valid
-    if (targetUser.role === 'admin') {
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -135,7 +132,7 @@ export async function PATCH(request: NextRequest) {
         isActive
       },
       { new: true }
-    ).lean();
+    ).lean() as IUserLean | null;
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -189,17 +186,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
 
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use a more explicit type assertion pattern
-    const targetUser = targetUserDoc as IUserLean;
-
     // Verify the role exists and is valid
-    if (targetUser.role === 'admin') {
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
@@ -207,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the user document
-    const deletedUser = await User.findByIdAndDelete(id).lean();
+    const deletedUser = await User.findByIdAndDelete(id).lean() as IUserLean | null;
 
     if (!deletedUser) {
       return NextResponse.json(
