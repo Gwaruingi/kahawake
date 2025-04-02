@@ -6,12 +6,6 @@ import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
 import type { NextRequest } from 'next/server';
 
-// Utility function to safely get user role
-function getUserRole(user: any): string | undefined {
-  if (Array.isArray(user)) return user[0]?.role;
-  return user?.role;
-}
-
 // GET handler to fetch a specific user
 export async function GET(request: NextRequest) {
   try {
@@ -100,14 +94,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id);
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with proper type safety
-    if (getUserRole(targetUserDoc) === 'admin') {
+    // Get the user document (handle potential array)
+    const userDoc = Array.isArray(targetUserDoc) ? targetUserDoc[0] : targetUserDoc;
+    if (userDoc?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -192,14 +187,15 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id);
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check the role with proper type safety
-    if (getUserRole(targetUserDoc) === 'admin') {
+    // Get the user document (handle potential array)
+    const userDoc = Array.isArray(targetUserDoc) ? targetUserDoc[0] : targetUserDoc;
+    if (userDoc?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
