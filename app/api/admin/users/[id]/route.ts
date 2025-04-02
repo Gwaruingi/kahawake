@@ -89,8 +89,12 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Safe type assertion after null check
-    const targetUser = targetUserDoc as unknown as { role: string; [key: string]: any };
+    // Type assertion using the User model's type
+    const targetUser = targetUserDoc as {
+      _id: mongoose.Types.ObjectId;
+      role: 'admin' | 'company' | 'jobseeker';
+      [key: string]: any;
+    };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -153,8 +157,12 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Safe type assertion after null check
-    const targetUser = targetUserDoc as unknown as { role: string; [key: string]: any };
+    // Type assertion using the User model's type
+    const targetUser = targetUserDoc as {
+      _id: mongoose.Types.ObjectId;
+      role: 'admin' | 'company' | 'jobseeker';
+      [key: string]: any;
+    };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
