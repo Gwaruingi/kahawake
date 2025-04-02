@@ -90,7 +90,11 @@ export async function PATCH(
     }
     
     // Type assertion using the User model's type
-    const targetUser = targetUserDoc as InstanceType<typeof User>;
+    const targetUser = targetUserDoc as {
+      _id: string;
+      role: 'admin' | 'company' | 'jobseeker';
+      [key: string]: any;
+    };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -154,7 +158,11 @@ export async function DELETE(
     }
     
     // Type assertion using the User model's type
-    const targetUser = targetUserDoc as InstanceType<typeof User>;
+    const targetUser = targetUserDoc as {
+      _id: string;
+      role: 'admin' | 'company' | 'jobseeker';
+      [key: string]: any;
+    };
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
