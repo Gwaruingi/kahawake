@@ -91,14 +91,14 @@ export async function PATCH(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as {
+    const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role?: 'admin' | 'company' | 'jobseeker';
+      role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
 
     // Check if the role exists and is valid before accessing it
-    if (targetUser.role === 'admin') {
+    if (targetUser && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -181,14 +181,14 @@ export async function DELETE(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as {
+    const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role?: 'admin' | 'company' | 'jobseeker';
+      role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
     };
 
     // Check if the role exists and is valid before accessing it
-    if (targetUser.role === 'admin') {
+    if (targetUser && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
