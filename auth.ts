@@ -9,6 +9,7 @@ import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { Adapter } from "next-auth/adapters";
 import mongoose, { Document } from 'mongoose';
+import { AdapterUser } from "next-auth/adapters";
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
@@ -125,7 +126,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         // Convert MongoDB ObjectId to string
-        token.id = (user as Document)._id.toString();
+        token.id = (user as AdapterUser & Document)._id.toString();
       }
       return token;
     },
