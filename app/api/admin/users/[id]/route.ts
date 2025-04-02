@@ -95,8 +95,8 @@ export async function PATCH(
       [key: string]: any;
     }
     
-    // Type assertion after defining the interface
-    const targetUser = targetUserDoc as UserDocument;
+    // Type assertion using a more precise type
+    const targetUser = targetUserDoc as unknown as UserDocument;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
@@ -165,8 +165,8 @@ export async function DELETE(
       [key: string]: any;
     }
     
-    // Type assertion after defining the interface
-    const targetUser = targetUserDoc as UserDocument;
+    // Type assertion using a more precise type
+    const targetUser = targetUserDoc as unknown as UserDocument;
     
     if (targetUser.role === 'admin') {
       return NextResponse.json(
