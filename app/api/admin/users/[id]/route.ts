@@ -91,9 +91,9 @@ export async function PATCH(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as {
+    const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role: keyof typeof User.role;
+      role: string;
       [key: string]: any;
     };
 
@@ -181,9 +181,9 @@ export async function DELETE(
     }
 
     // Type assertion using the actual Mongoose document type
-    const targetUser = targetUserDoc as {
+    const targetUser = targetUserDoc as unknown as {
       _id: string;
-      role: keyof typeof User.role;
+      role: string;
       [key: string]: any;
     };
 
