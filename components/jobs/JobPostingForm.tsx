@@ -112,13 +112,11 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
         throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'post'} job`);
       }
 
-      toast({
-        title: "Success!",
-        message: isEditMode 
+      toast.success(
+        isEditMode 
           ? "Your job has been updated successfully." 
-          : "Your job has been posted successfully.",
-        type: "success",
-      });
+          : "Your job has been posted successfully."
+      );
 
       // Redirect to company jobs page
       router.push('/company/jobs');
@@ -126,11 +124,9 @@ export default function JobPostingForm({ job }: JobPostingFormProps) {
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error('An error occurred');
       
-      toast({
-        title: "Error",
-        message: errorObj.message || `Failed to ${isEditMode ? 'update' : 'post'} job`,
-        type: "error",
-      });
+      toast.error(
+        errorObj.message || `Failed to ${isEditMode ? 'update' : 'post'} job`
+      );
     } finally {
       setLoading(false);
       setSubmitting(false);
