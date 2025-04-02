@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { User, IUserLean } from "@/models/User";
+import { User, IUserLean, isUserLean } from "@/models/User";
 import { auth } from "@/auth";
 import { ensureDbConnected } from "@/lib/mongoose";
 import bcrypt from 'bcrypt';
@@ -84,14 +84,19 @@ export async function PATCH(
     }
     
     // Prevent modifying admin users
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id).lean();
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check if the role exists and is valid before accessing it
-    if (targetUserDoc && targetUserDoc.role === 'admin') {
+    // Use the type guard function to ensure the document is correctly typed
+    if (!isUserLean(targetUserDoc)) {
+      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
+    }
+
+    // Now TypeScript knows targetUserDoc is definitely IUserLean
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -167,14 +172,19 @@ export async function DELETE(
     }
     
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();
-    
+    const targetUserDoc = await User.findById(id).lean();
+
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check if the role exists and is valid before accessing it
-    if (targetUserDoc && targetUserDoc.role === 'admin') {
+    // Use the type guard function to ensure the document is correctly typed
+    if (!isUserLean(targetUserDoc)) {
+      return NextResponse.json({ error: "Invalid user document" }, { status: 500 });
+    }
+
+    // Now TypeScript knows targetUserDoc is definitely IUserLean
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }

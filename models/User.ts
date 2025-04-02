@@ -45,6 +45,16 @@ export interface IUserLean {
   __v?: number; // .lean() includes __v by default
 }
 
+// Type guard function to check if a document matches IUserLean
+export function isUserLean(doc: any): doc is IUserLean {
+  return doc && typeof doc === 'object' && 
+         typeof doc._id === 'string' &&
+         typeof doc.name === 'string' &&
+         typeof doc.email === 'string' &&
+         typeof doc.role === 'string' &&
+         ['admin', 'company', 'jobseeker'].includes(doc.role);
+}
+
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -66,4 +76,4 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-export const User = mongoose.models.User || mongoose.model<IUserLean>('User', userSchema);
+export const User = mongoose.models.User || mongoose.model('User', userSchema);
