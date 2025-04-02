@@ -90,7 +90,7 @@ export async function PATCH(
     }
     
     // Type assertion using a more precise type
-    const targetUser = (targetUserDoc as any) as {
+    const targetUser = targetUserDoc as {
       _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
@@ -158,7 +158,7 @@ export async function DELETE(
     }
     
     // Type assertion using a more precise type
-    const targetUser = (targetUserDoc as any) as {
+    const targetUser = targetUserDoc as {
       _id: string;
       role: 'admin' | 'company' | 'jobseeker';
       [key: string]: any;
