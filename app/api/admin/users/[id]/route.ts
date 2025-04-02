@@ -10,7 +10,7 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     // Get the current session
-    const session: Awaited<ReturnType<typeof auth>> = await auth();
+    const session = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch user
-    const user: IUserLean | null = await User.findById(id)
+    const user = await User.findById(id)
       .select('name email role companyName isActive createdAt')
-      .lean();
+      .lean<IUserLean>();
     
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Get the current session
-    const session: Awaited<ReturnType<typeof auth>> = await auth();
+    const session = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -94,14 +94,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUserDoc: IUserLean | null = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Verify the role exists and is valid
-    if (targetUserDoc.role === 'admin') {
+    if (targetUserDoc && 'role' in targetUserDoc && typeof targetUserDoc.role === 'string' && targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -121,7 +121,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the user document
-    const updatedUser: IUserLean | null = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       id,
       {
         name,
@@ -132,7 +132,7 @@ export async function PATCH(request: NextRequest) {
         isActive
       },
       { new: true }
-    ).lean();
+    ).lean() as IUserLean | null;
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -155,7 +155,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Get the current session
-    const session: Awaited<ReturnType<typeof auth>> = await auth();
+    const session = await auth();
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -186,14 +186,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc: IUserLean | null = await User.findById(id).lean();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
 
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Verify the role exists and is valid
-    if (targetUserDoc.role === 'admin') {
+    if (targetUserDoc && 'role' in targetUserDoc && typeof targetUserDoc.role === 'string' && targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
@@ -201,7 +201,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the user document
-    const deletedUser: IUserLean | null = await User.findByIdAndDelete(id).lean();
+    const deletedUser = await User.findByIdAndDelete(id).lean() as IUserLean | null;
 
     if (!deletedUser) {
       return NextResponse.json(
