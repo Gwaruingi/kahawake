@@ -101,7 +101,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Check the role with proper type safety
-    if ((targetUserDoc as IUserLean)?.role === 'admin') {
+    if ((targetUserDoc as IUserLean).role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
