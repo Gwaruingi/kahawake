@@ -186,14 +186,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Prevent deleting admin users
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id);
     
     if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check the role with proper type safety
-    if ((targetUserDoc as IUserLean).role === 'admin') {
+    if (targetUserDoc?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
