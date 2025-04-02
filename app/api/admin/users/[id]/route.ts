@@ -96,8 +96,8 @@ export async function PATCH(
       [key: string]: any;
     };
 
-    // Check if the role exists before accessing it
-    if (targetUser && 'role' in targetUser && targetUser.role === 'admin') {
+    // Check if the role exists and is valid before accessing it
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -165,8 +165,8 @@ export async function DELETE(
       [key: string]: any;
     };
 
-    // Check if the role exists before accessing it
-    if (targetUser && 'role' in targetUser && targetUser.role === 'admin') {
+    // Check if the role exists and is valid before accessing it
+    if (targetUser && typeof targetUser.role === 'string' && targetUser.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
         { status: 403 }
