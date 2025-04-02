@@ -11,8 +11,21 @@ import { Adapter } from "next-auth/adapters";
 import mongoose, { Document } from 'mongoose';
 import { AdapterUser } from "next-auth/adapters";
 
+// Define the User type with proper properties
+interface UserType extends Document {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: 'admin' | 'company' | 'jobseeker';
+  companyName?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Export the User type for use in other files
-export type UserType = typeof User & Document;
+export type UserType = UserType;
 
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
