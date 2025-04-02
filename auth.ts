@@ -11,6 +11,9 @@ import { Adapter } from "next-auth/adapters";
 import mongoose, { Document } from 'mongoose';
 import { AdapterUser } from "next-auth/adapters";
 
+// Export the User type for use in other files
+export type UserType = typeof User & Document;
+
 // Test MongoDB connection - using a separate client to avoid topology issues
 const testConnection = async () => {
   let testClient = null;
@@ -126,7 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         // Convert MongoDB ObjectId to string
-        token.id = (user as AdapterUser & Document)._id.toString();
+        token.id = (user as UserType)._id.toString();
       }
       return token;
     },
