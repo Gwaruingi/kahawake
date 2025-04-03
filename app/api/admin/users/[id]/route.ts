@@ -113,7 +113,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();
+//    const targetUser = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean;
+
 
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
