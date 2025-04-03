@@ -63,6 +63,8 @@ export async function PATCH(request: NextRequest) {
 
     // Ensure targetUserDoc is properly typed
     const targetUser = targetUserDoc as IUserLean;
+
+    // Uncomment and adjust this block if you want to restrict modifying admin users
     // if (targetUser.role === 'admin') {
     //   return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     // }
