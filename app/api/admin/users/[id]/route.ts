@@ -193,17 +193,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-
     // Handle both array and single object cases
     const user = Array.isArray(targetUser) ? targetUser[0] : targetUser;
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-    
     if (user?.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot delete admin users" },
