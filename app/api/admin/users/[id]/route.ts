@@ -40,9 +40,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Now id is guaranteed to be a string, not null
-    const { error, user } = await getUserById(id);
-    if (error) return error;
+    // Fetch user
+    const user = await User.findById(id)
+      .select('name email role companyName isActive createdAt')
+      .lean<IUserLean>();
+    
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json(user);
   } catch (error) {
@@ -89,15 +94,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent modifying admin users
-    const targetUser = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();
     
-    if (!targetUser) {
+    if (!targetUserDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Handle both array and single object cases
-    const user = Array.isArray(targetUser) ? targetUser[0] : targetUser;
-    if (user?.role === 'admin') {
+    // Check the role with proper type safety
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json(
         { error: "Cannot modify admin users" },
         { status: 403 }
@@ -188,13 +192,24 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Handle both array and single object cases
-    const user = Array.isArray(targetUser) ? targetUser[0] : targetUser;
-    if (user?.role === 'admin') {
-      return NextResponse.json(
-        { error: "Cannot delete admin users" },
-        { status: 403 }
-      );
+    // Check the role with proper type safety
+    if (Array.isArray(targetUser)) {
+      // Handle array case - taking first item if it's an array
+      const user = targetUser[0];
+      if (user?.role === 'admin') {
+        return NextResponse.json(
+          { error: "Cannot delete admin users" },
+          { status: 403 }
+        );
+      }
+    } else {
+      // Handle single user case
+      if (targetUser?.role === 'admin') {
+        return NextResponse.json(
+          { error: "Cannot delete admin users" },
+          { status: 403 }
+        );
+      }
     }
 
     // Delete the user document
@@ -214,22 +229,5 @@ export async function DELETE(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  }
-}
-
-async function getUserById(id: string) {
-  try {
-    const user = await User.findById(id)
-      .select('name email role companyName isActive createdAt')
-      .lean<IUserLean>();
-    
-    if (!user) {
-      return { error: NextResponse.json({ error: "User not found" }, { status: 404 }) };
-    }
-
-    return { user };
-  } catch (error) {
-    console.error('Error in getUserById:', error);
-    return { error: NextResponse.json({ error: "Internal server error" }, { status: 500 }) };
   }
 }
