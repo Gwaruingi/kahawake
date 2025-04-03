@@ -63,9 +63,9 @@ export async function PATCH(request: NextRequest) {
 
     // Ensure targetUserDoc is properly typed
     const targetUser = targetUserDoc as IUserLean;
-    if (targetUser.role === 'admin') {
-      return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
-    }
+    // if (targetUser.role === 'admin') {
+    //   return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
+    // }
 
     const { name, email, password, role, companyName, isActive } = await request.json();
 
