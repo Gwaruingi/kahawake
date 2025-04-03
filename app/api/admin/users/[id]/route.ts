@@ -62,10 +62,11 @@ export async function PATCH(request: NextRequest) {
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     // Ensure targetUserDoc is typed correctly
+    /*
     if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
-
+*/
     const { name, email, password, role, companyName, isActive } = await request.json();
 
     if (Object.keys({ name, email, password, role, companyName, isActive }).length === 0) {
@@ -129,11 +130,11 @@ export async function DELETE(request: NextRequest) {
     const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure it's typed properly
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
-/*
+
     if (targetUser.role === 'admin') {
       return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
     }
-*/
+
     const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
 
     if (!deletedUser) {
