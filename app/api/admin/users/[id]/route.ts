@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // If the logged-in admin is trying to fetch their own data
-    if (session.user.role === 'admin' && session.user._id === id) {
+    if (session.user.role === 'admin' && session.user.id === id) {  // Use session.user.id instead of _id
       const user = await User.findById(id)
         .select('name email role companyName isActive createdAt')
         .lean<IUserLean>();
@@ -58,7 +58,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Ensure admin can only edit their own data
-    if (session.user.role === 'admin' && session.user._id !== id) {
+    if (session.user.role === 'admin' && session.user.id !== id) {  // Use session.user.id instead of _id
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -123,7 +123,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Ensure admin can only delete their own data
-    if (session.user.role === 'admin' && session.user._id !== id) {
+    if (session.user.role === 'admin' && session.user.id !== id) {  // Use session.user.id instead of _id
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
