@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
+    const targetUserDoc = await User.findById(id).lean<IUserLean>() as IUserLean | null;
 
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
@@ -122,7 +122,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean() as IUserLean | null;
+    const targetUser = await User.findById(id).lean<IUserLean>() as IUserLean | null;
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
