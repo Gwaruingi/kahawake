@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected(); // Ensure DB connection
 
@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const id = request.nextUrl.searchParams.get('id');
+    // Await params object
+    const { id } = await params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
 }
 
 // PATCH handler to update a user
-export async function PATCH(request: NextRequest) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected();
 
@@ -48,13 +49,14 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const id = request.nextUrl.searchParams.get('id');
+    // Await params object
+    const { id } = await params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
-    
+
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     if (targetUserDoc.role === 'admin') {
@@ -67,32 +69,41 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
     }
 
+    const updateData: any = { name, email, isActive };
+    if (role) updateData.role = role;
+    if (companyName !== undefined) updateData.companyName = companyName;
+    if (password) {
+      if (typeof password === 'string' && password.length >= 6) {
+        updateData.password = await bcrypt.hash(password, 10);
+      } else {
+        return NextResponse.json({ error: 'Password must be a string of at least 6 characters' }, { status: 400 });
+      }
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      {
-        name,
-        email,
-        password: password ? await bcrypt.hash(password, 10) : undefined,
-        role,
-        companyName,
-        isActive
-      },
-      { new: true }
+      updateData,
+      { new: true, runValidators: true }
     ).lean<IUserLean>();
 
     if (!updatedUser) {
-      return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to update user or user not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedUser);
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    return NextResponse.json(userWithoutPassword);
+
   } catch (error) {
     console.error('Error in PATCH handler:', error);
+    if (error instanceof mongoose.Error.ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 // DELETE handler to remove a user
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected();
 
@@ -103,7 +114,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const id = request.nextUrl.searchParams.get('id');
+    // Await params object
+    const { id } = await params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -119,7 +131,7 @@ export async function DELETE(request: NextRequest) {
     const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
 
     if (!deletedUser) {
-      return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to delete user or user not found" }, { status: 404 });
     }
 
     return NextResponse.json({ message: "User deleted successfully" });
