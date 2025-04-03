@@ -8,9 +8,6 @@ import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
 export async function GET(request: NextRequest) {
-  const pathParts = request.nextUrl.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];  // Extract id from URL
-
   try {
     await ensureDbConnected(); // Ensure DB connection
 
@@ -21,6 +18,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -40,9 +38,6 @@ export async function GET(request: NextRequest) {
 
 // PATCH handler to update a user
 export async function PATCH(request: NextRequest) {
-  const pathParts = request.nextUrl.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];  // Extract id from URL
-
   try {
     await ensureDbConnected();
 
@@ -53,6 +48,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -92,8 +88,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update user or user not found" }, { status: 404 });
     }
 
-    const { password: _, ...userWithoutPassword } = updatedUser;
-    return NextResponse.json(userWithoutPassword);
+    // Return the updated user object without attempting to destructure 'password'
+    return NextResponse.json(updatedUser);
 
   } catch (error) {
     console.error('Error in PATCH handler:', error);
@@ -106,9 +102,6 @@ export async function PATCH(request: NextRequest) {
 
 // DELETE handler to remove a user
 export async function DELETE(request: NextRequest) {
-  const pathParts = request.nextUrl.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];  // Extract id from URL
-
   try {
     await ensureDbConnected();
 
@@ -119,6 +112,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
