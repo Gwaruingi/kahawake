@@ -6,7 +6,7 @@ import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
 import type { NextRequest } from 'next/server';
 
-// GET handler to fetch a specific user
+// GET handler to fetch a specific user (Admins only)
 export async function GET(request: NextRequest) {
   try {
     await ensureDbConnected(); // Ensure DB connection
@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Only admins can view admin users
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH handler to update a user
+// PATCH handler to update a user (Admins only)
 export async function PATCH(request: NextRequest) {
   try {
     await ensureDbConnected();
@@ -46,6 +47,7 @@ export async function PATCH(request: NextRequest) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Only admins can update users
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -61,8 +63,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Ensure targetUser is properly typed
-    // We can now safely access the 'role' field because `findById` guarantees a single object
+    // Ensure admins are not modified by non-admins
     if (targetUser.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
@@ -108,7 +109,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE handler to remove a user
+// DELETE handler to remove a user (Admins only)
 export async function DELETE(request: NextRequest) {
   try {
     await ensureDbConnected();
@@ -116,6 +117,7 @@ export async function DELETE(request: NextRequest) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Only admins can delete users
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -131,6 +133,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
+    // Prevent deleting admin users
     if (targetUser.role === 'admin') {
       return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
     }
