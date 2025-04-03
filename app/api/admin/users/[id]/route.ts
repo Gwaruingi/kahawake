@@ -57,17 +57,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensuring it's typed properly
+    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensuring it's typed properly
 
-    if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Ensure targetUserDoc is properly typed
-    const targetUser = targetUserDoc as IUserLean;
-
-    // Uncomment and adjust this block if you want to restrict modifying admin users
-    // if (targetUser.role === 'admin') {
-    //   return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
-    // }
+    // Ensure targetUser is properly typed
+    // We can now safely access the 'role' field because `findById` guarantees a single object
+    if (targetUser.role === 'admin') {
+      return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
+    }
 
     const { name, email, password, role, companyName, isActive } = await request.json();
 
