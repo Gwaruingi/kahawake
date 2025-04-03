@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split('/').pop();  // Extract id from URL
+
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -48,7 +50,9 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split('/').pop();  // Extract id from URL
+
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -88,7 +92,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update user or user not found" }, { status: 404 });
     }
 
-    // Return the updated user object without attempting to destructure 'password'
     return NextResponse.json(updatedUser);
 
   } catch (error) {
@@ -112,7 +115,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split('/').pop();  // Extract id from URL
+
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
