@@ -4,10 +4,10 @@ import { User, IUserLean } from '@/models/User';
 import { auth } from '@/auth';
 import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextRequestParams } from 'next/server';
 
 // GET handler to fetch a specific user
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, params: NextRequestParams) {
   try {
     await ensureDbConnected(); // Ensure DB connection
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     // Await params object
-    const { id } = await params;
+    const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PATCH handler to update a user
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, params: NextRequestParams) {
   try {
     await ensureDbConnected();
 
@@ -50,7 +50,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // Await params object
-    const { id } = await params;
+    const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -103,7 +103,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE handler to remove a user
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, params: NextRequestParams) {
   try {
     await ensureDbConnected();
 
@@ -115,7 +115,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Await params object
-    const { id } = await params;
+    const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
