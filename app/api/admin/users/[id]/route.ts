@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const user = await User.findById(id)
       .select('name email role companyName isActive createdAt')
-      .lean<IUserLean>();
+      .lean<IUserLean>();  // Ensuring this is typed properly
 
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
@@ -57,11 +57,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensure it's a single document, not an array
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensure this is typed properly
 
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    if (targetUserDoc.role === 'admin') {
+    // Explicitly handle null checks
+    if (targetUserDoc && targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
 
@@ -122,7 +123,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure it's a single document, not an array
+    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure this is typed properly
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
