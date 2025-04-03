@@ -61,8 +61,9 @@ export async function PATCH(request: NextRequest) {
 
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Ensure targetUserDoc is typed correctly
-    if (targetUserDoc.role === 'admin') {
+    // Ensure targetUserDoc is properly typed
+    const targetUser = targetUserDoc as IUserLean;
+    if (targetUser.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
 
