@@ -57,12 +57,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensure this is typed properly
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensuring it's typed properly
 
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Explicitly handle null checks
-    if (targetUserDoc && targetUserDoc.role === 'admin') {
+    // Ensure targetUserDoc is typed correctly
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
 
@@ -123,7 +123,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure this is typed properly
+    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure it's typed properly
 
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
