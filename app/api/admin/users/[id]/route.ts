@@ -1,194 +1,130 @@
-import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import { User } from "@/models/User";
-import { auth } from "@/auth";
-import { ensureDbConnected } from "@/lib/mongoose";
-
-// Define User interface to match the MongoDB schema
-interface UserDocument {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
-  companyName?: string;
-  isActive?: boolean;
-}
+import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import { User, IUserLean } from '@/models/User';
+import { auth } from '@/auth';
+import { ensureDbConnected } from '@/lib/mongoose';
+import bcrypt from 'bcrypt';
+import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    // Get the current session
+    await ensureDbConnected(); // Ensure DB connection
+
     const session = await auth();
-    
-    // Check if user is admin
-    if (!session || !session.user || session.user.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 401 });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    
-    // Ensure database connection
-    await ensureDbConnected();
-    
-    // Validate ID
-    const { id } = await params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+
+    const id = request.nextUrl.searchParams.get('id');
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
-    
-    // Fetch user
+
     const user = await User.findById(id)
       .select('name email role companyName isActive createdAt')
-      .lean();
-    
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-    
+      .lean<IUserLean>();
+
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
     return NextResponse.json(user);
   } catch (error) {
-    console.error("Error fetching user:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch user" },
-      { status: 500 }
-    );
+    console.error('Error in GET handler:', error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 // PATCH handler to update a user
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest) {
   try {
-    // Get the current session
-    const session = await auth();
-    
-    // Check if user is admin
-    if (!session || !session.user || session.user.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 401 });
-    }
-    
-    // Ensure database connection
     await ensureDbConnected();
-    
-    // Get user ID
-    const { id } = await params;
-    
-    // Validate ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const id = request.nextUrl.searchParams.get('id');
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
+
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
     
-    // Parse request body
-    const data = await request.json();
-    
-    // Prevent changing role to admin for security reasons
-    if (data.role === 'admin') {
-      return NextResponse.json(
-        { error: "Cannot change user role to admin through this endpoint" },
-        { status: 400 }
-      );
+    if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    if (targetUserDoc.role === 'admin') {
+      return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
-    
-    // Prevent modifying admin users
-    const targetUser = await User.findById(id).lean() as UserDocument;
-    
-    if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    const { name, email, password, role, companyName, isActive } = await request.json();
+
+    if (!name || !email) {
+      return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
     }
-    
-    if (targetUser.role === 'admin') {
-      return NextResponse.json(
-        { error: "Cannot modify admin users" },
-        { status: 403 }
-      );
-    }
-    
-    // Update user
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: data },
+      {
+        name,
+        email,
+        password: password ? await bcrypt.hash(password, 10) : undefined,
+        role,
+        companyName,
+        isActive
+      },
       { new: true }
-    )
-    .select('name email role companyName isActive')
-    .lean();
-    
-    return NextResponse.json({
-      message: "User updated successfully",
-      user: updatedUser
-    });
+    ).lean<IUserLean>();
+
+    if (!updatedUser) {
+      return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    }
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json(
-      { error: "Failed to update user" },
-      { status: 500 }
-    );
+    console.error('Error in PATCH handler:', error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 // DELETE handler to remove a user
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    // Get the current session
-    const session = await auth();
-    
-    // Check if user is admin
-    if (!session || !session.user || session.user.role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 401 });
-    }
-    
-    // Ensure database connection
     await ensureDbConnected();
-    
-    // Get user ID
-    const { id } = await params;
-    
-    // Validate ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+
+    const session = await auth();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (session.user.role !== 'admin') {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const id = request.nextUrl.searchParams.get('id');
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
-<<<<<<< HEAD
-    
-    // Prevent deleting admin users
-    const targetUser = await User.findById(id).lean() as UserDocument;
-    
-=======
 
-//    const targetUser = await User.findById(id).lean<IUserLean>();
-    const targetUserDoc = await User.findById(id).lean() as IUserLean;
+    const targetUser = await User.findById(id).lean() as IUserLean | null;
 
+    if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
->>>>>>> 72861ea2c35fe6da1e84820533a5082b39415185
-    if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-    
     if (targetUser.role === 'admin') {
-      return NextResponse.json(
-        { error: "Cannot delete admin users" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
     }
-    
-    // Delete user
-    await User.findByIdAndDelete(id);
-    
-    return NextResponse.json({
-      message: "User deleted successfully"
-    });
+
+    const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
+
+    if (!deletedUser) {
+      return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    return NextResponse.json(
-      { error: "Failed to delete user" },
-      { status: 500 }
-    );
+    console.error('Error in DELETE handler:', error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
