@@ -4,10 +4,10 @@ import { User, IUserLean } from '@/models/User';
 import { auth } from '@/auth';
 import { ensureDbConnected } from '@/lib/mongoose';
 import bcrypt from 'bcrypt';
-import type { NextRequest, NextRequestParams } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
-export async function GET(request: NextRequest, params: NextRequestParams) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected(); // Ensure DB connection
 
@@ -18,7 +18,6 @@ export async function GET(request: NextRequest, params: NextRequestParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Await params object
     const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest, params: NextRequestParams) {
 }
 
 // PATCH handler to update a user
-export async function PATCH(request: NextRequest, params: NextRequestParams) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected();
 
@@ -49,7 +48,6 @@ export async function PATCH(request: NextRequest, params: NextRequestParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Await params object
     const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
@@ -103,7 +101,7 @@ export async function PATCH(request: NextRequest, params: NextRequestParams) {
 }
 
 // DELETE handler to remove a user
-export async function DELETE(request: NextRequest, params: NextRequestParams) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await ensureDbConnected();
 
@@ -114,7 +112,6 @@ export async function DELETE(request: NextRequest, params: NextRequestParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Await params object
     const { id } = params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
