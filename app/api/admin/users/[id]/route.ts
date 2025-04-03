@@ -155,10 +155,18 @@ export async function DELETE(
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
+<<<<<<< HEAD
     
     // Prevent deleting admin users
     const targetUser = await User.findById(id).lean() as UserDocument;
     
+=======
+
+//    const targetUser = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean;
+
+
+>>>>>>> 72861ea2c35fe6da1e84820533a5082b39415185
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
