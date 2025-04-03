@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, context: { params: { id: string 
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await context.params;
+    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -48,7 +48,7 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await context.params;
+    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -112,7 +112,7 @@ export async function DELETE(request: NextRequest, context: { params: { id: stri
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = await context.params;
+    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
