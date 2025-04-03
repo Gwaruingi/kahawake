@@ -68,11 +68,14 @@ export async function PATCH(request: NextRequest) {
 
     const { name, email, password, role, companyName, isActive } = await request.json();
 
-    if (!name || !email) {
-      return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
+    if (Object.keys({ name, email, password, role, companyName, isActive }).length === 0) {
+      return NextResponse.json({ error: "No fields provided to update" }, { status: 400 });
     }
 
-    const updateData: any = { name, email, isActive };
+    const updateData: any = {};
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
     if (role) updateData.role = role;
     if (companyName !== undefined) updateData.companyName = companyName;
     if (password) {

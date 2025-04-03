@@ -143,8 +143,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
-        // Convert MongoDB ObjectId to string
-        token.id = (user as AuthUser)._id.toString();
+        // Ensure user is properly typed and has an id
+        const authUser = user as AuthUser;
+        if (authUser._id) {
+          token.id = authUser._id.toString();
+        }
       }
       return token;
     },
