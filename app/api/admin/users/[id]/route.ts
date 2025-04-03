@@ -9,10 +9,10 @@ import type { NextRequest } from 'next/server';
 // GET handler to fetch a specific user
 export async function GET(request: NextRequest) {
   try {
+    await ensureDbConnected(); // Ensure DB connection
+
     const session = await auth();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -27,9 +27,7 @@ export async function GET(request: NextRequest) {
       .select('name email role companyName isActive createdAt')
       .lean<IUserLean>();
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     return NextResponse.json(user);
   } catch (error) {
@@ -41,10 +39,10 @@ export async function GET(request: NextRequest) {
 // PATCH handler to update a user
 export async function PATCH(request: NextRequest) {
   try {
+    await ensureDbConnected();
+
     const session = await auth();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -55,18 +53,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();
+    const targetUserDoc = await User.findById(id).lean() as IUserLean | null;
+    
+    if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    if (targetUser.role === 'admin') {
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
 
-    const body = await request.json();
-    const { name, email, password, role, companyName, isActive } = body;
+    const { name, email, password, role, companyName, isActive } = await request.json();
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
@@ -80,7 +75,7 @@ export async function PATCH(request: NextRequest) {
         password: password ? await bcrypt.hash(password, 10) : undefined,
         role,
         companyName,
-        isActive,
+        isActive
       },
       { new: true }
     ).lean<IUserLean>();
@@ -99,10 +94,10 @@ export async function PATCH(request: NextRequest) {
 // DELETE handler to remove a user
 export async function DELETE(request: NextRequest) {
   try {
+    await ensureDbConnected();
+
     const session = await auth();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     if (session.user.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -113,11 +108,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();
+    const targetUser = await User.findById(id).lean() as IUserLean | null;
 
-    if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     if (targetUser.role === 'admin') {
       return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
