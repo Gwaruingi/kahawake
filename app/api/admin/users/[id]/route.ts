@@ -7,7 +7,9 @@ import bcrypt from 'bcrypt';
 import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+export async function GET(request: NextRequest) {
+  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+
   try {
     await ensureDbConnected(); // Ensure DB connection
 
@@ -18,7 +20,6 @@ export async function GET(request: NextRequest, context: { params: { id: string 
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -37,7 +38,9 @@ export async function GET(request: NextRequest, context: { params: { id: string 
 }
 
 // PATCH handler to update a user
-export async function PATCH(request: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(request: NextRequest) {
+  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+
   try {
     await ensureDbConnected();
 
@@ -48,7 +51,6 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
@@ -101,7 +103,9 @@ export async function PATCH(request: NextRequest, context: { params: { id: strin
 }
 
 // DELETE handler to remove a user
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
+  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+
   try {
     await ensureDbConnected();
 
@@ -112,7 +116,6 @@ export async function DELETE(request: NextRequest, context: { params: { id: stri
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { id } = context.params;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
