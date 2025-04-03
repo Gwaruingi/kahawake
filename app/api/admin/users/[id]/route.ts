@@ -8,7 +8,8 @@ import type { NextRequest } from 'next/server';
 
 // GET handler to fetch a specific user
 export async function GET(request: NextRequest) {
-  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+  const pathParts = request.nextUrl.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];  // Extract id from URL
 
   try {
     await ensureDbConnected(); // Ensure DB connection
@@ -39,7 +40,8 @@ export async function GET(request: NextRequest) {
 
 // PATCH handler to update a user
 export async function PATCH(request: NextRequest) {
-  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+  const pathParts = request.nextUrl.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];  // Extract id from URL
 
   try {
     await ensureDbConnected();
@@ -104,7 +106,8 @@ export async function PATCH(request: NextRequest) {
 
 // DELETE handler to remove a user
 export async function DELETE(request: NextRequest) {
-  const { id } = request.nextUrl.pathname.split('/').pop() || {};  // Extract id from URL
+  const pathParts = request.nextUrl.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];  // Extract id from URL
 
   try {
     await ensureDbConnected();
