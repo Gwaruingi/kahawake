@@ -9,65 +9,48 @@ import type { NextRequest } from 'next/server';
 // GET handler to fetch a specific user (Admins only can fetch their own data)
 export async function GET(request: NextRequest) {
   try {
-    await ensureDbConnected(); // Ensure DB connection
-
+    await ensureDbConnected();
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Check if admin is trying to access their own data
     const pathname = request.nextUrl.pathname;
-    const id = pathname.split('/').pop();  // Extract id from URL
+    const id = pathname.split('/').pop();
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // If the logged-in admin is trying to fetch their own data
-    if (session.user.role === 'admin' && session.user.id === id) {  // Use session.user.id instead of _id
-      const user = await User.findById(id)
-        .select('name email role companyName isActive createdAt')
-        .lean<IUserLean>();
+    const user = await User.findById(id)
+      .select('name email role companyName isActive createdAt')
+      .lean<IUserLean>();
 
-      if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-      return NextResponse.json(user);
-    }
-
-    // If it's not their own data, deny access
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
+    return NextResponse.json(user);
   } catch (error) {
     console.error('Error in GET handler:', error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-// PATCH handler to update a user (Admins can only update their own data)
+// PATCH handler to update a user
 export async function PATCH(request: NextRequest) {
   try {
     await ensureDbConnected();
-
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const pathname = request.nextUrl.pathname;
-    const id = pathname.split('/').pop();  // Extract id from URL
+    const id = pathname.split('/').pop();
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Ensure admin can only edit their own data
-    if (session.user.role === 'admin' && session.user.id !== id) {  // Use session.user.id instead of _id
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const targetUser = await User.findById(id).lean<IUserLean>();
-
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const { name, email, password, role, companyName, isActive } = await request.json();
-
     if (Object.keys({ name, email, password, role, companyName, isActive }).length === 0) {
       return NextResponse.json({ error: "No fields provided to update" }, { status: 400 });
     }
@@ -97,7 +80,6 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json(updatedUser);
-
   } catch (error) {
     console.error('Error in PATCH handler:', error);
     if (error instanceof mongoose.Error.ValidationError) {
@@ -107,32 +89,24 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE handler to remove a user (Admins can only delete their own data)
+// DELETE handler to remove a user
 export async function DELETE(request: NextRequest) {
   try {
     await ensureDbConnected();
-
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const pathname = request.nextUrl.pathname;
-    const id = pathname.split('/').pop();  // Extract id from URL
+    const id = pathname.split('/').pop();
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // Ensure admin can only delete their own data
-    if (session.user.role === 'admin' && session.user.id !== id) {  // Use session.user.id instead of _id
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const targetUser = await User.findById(id).lean<IUserLean>();
-
     if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const deletedUser = await User.findByIdAndDelete(id).lean<IUserLean>();
-
     if (!deletedUser) {
       return NextResponse.json({ error: "Failed to delete user or user not found" }, { status: 404 });
     }
