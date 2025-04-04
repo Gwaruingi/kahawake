@@ -62,6 +62,7 @@ export async function PATCH(request: NextRequest) {
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     //
+    //comments
     console.log('targetUserDoc:', targetUserDoc);
     console.log('typeof targetUserDoc:', typeof targetUserDoc);
     console.log('targetUserDoc.role:', targetUserDoc.role);
