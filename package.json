@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "clean": "rm -rf .next",
+    "clean": "next clean || true && rm -rf .next || true",
     "dev": "next dev",
     "build": "npm run clean && next build",
     "start": "next start",
