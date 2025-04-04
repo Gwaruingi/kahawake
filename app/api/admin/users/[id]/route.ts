@@ -142,6 +142,9 @@ export async function DELETE(request: NextRequest) {
     console.log('targetUserDoc.role:', targetUserDoc.role);
     console.log('typeof targetUserDoc.role:', typeof targetUserDoc.role);
 
+    // Added this comment to trigger a new deployment
+    console.log('Triggering new deployment');
+
     if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
     }
