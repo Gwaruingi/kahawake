@@ -61,12 +61,16 @@ export async function PATCH(request: NextRequest) {
 
     if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
+    console.log('targetUserDoc:', targetUserDoc);
+    console.log('typeof targetUserDoc:', typeof targetUserDoc);
+    console.log('targetUserDoc.role:', targetUserDoc.role);
+    console.log('typeof targetUserDoc.role:', typeof targetUserDoc.role);
+
     // Ensure targetUserDoc is typed correctly
-    /*
     if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot modify admin users" }, { status: 403 });
     }
-*/
+
     const { name, email, password, role, companyName, isActive } = await request.json();
 
     if (Object.keys({ name, email, password, role, companyName, isActive }).length === 0) {
@@ -127,11 +131,16 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    const targetUser = await User.findById(id).lean<IUserLean>();  // Ensure it's typed properly
+    const targetUserDoc = await User.findById(id).lean<IUserLean>();  // Ensure it's typed properly
 
-    if (!targetUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!targetUserDoc) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    if (targetUser.role === 'admin') {
+    console.log('targetUserDoc:', targetUserDoc);
+    console.log('typeof targetUserDoc:', typeof targetUserDoc);
+    console.log('targetUserDoc.role:', targetUserDoc.role);
+    console.log('typeof targetUserDoc.role:', typeof targetUserDoc.role);
+
+    if (targetUserDoc.role === 'admin') {
       return NextResponse.json({ error: "Cannot delete admin users" }, { status: 403 });
     }
 
