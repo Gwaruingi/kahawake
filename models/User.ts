@@ -37,7 +37,7 @@ export interface IUserLean {
   _id: string; // .lean() typically converts ObjectId to string
   name: string;
   email: string;
-  role: 'admin' | 'company' | 'jobseeker';
+  role: 'admin' | 'company' | 'jobseeker'; 
   companyName?: string;
   isActive: boolean;
   createdAt?: Date; // Added by timestamps: true
